@@ -23,7 +23,7 @@ class WebGLContext {
 	#setUpRenderer() {
 		this.renderer = new THREE.WebGLRenderer({
 			canvas: this.canvas,
-			antialias: false,
+			antialias: true,
 		});
 
 		this.fullScreenDimensions = this.getFullScreenDimensions();
@@ -34,9 +34,9 @@ class WebGLContext {
 		);
 		this.renderer.setPixelRatio(this.pixelRatio);
 
-		this.renderer.shadowMap.enabled = false;
-		// this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-		// this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+		this.renderer.shadowMap.enabled = true;
+		this.renderer.shadowMap.type = THREE.VSMShadowMap;
+		this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 	}
 
 	getFullScreenDimensions() {
