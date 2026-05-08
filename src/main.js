@@ -18,6 +18,17 @@ document.addEventListener("DOMContentLoaded", () => {
 	let scrollOffset = 0;
 	let smoothScrollOffset = 0;
 
+	// Portrait mouse drift
+	let portraitDriftX = 0;
+	let portraitDriftY = 0;
+	let portraitDriftTargetX = 0;
+	let portraitDriftTargetY = 0;
+
+	window.addEventListener("mousemove", (e) => {
+		portraitDriftTargetX = ((e.clientX / window.innerWidth) * 2 - 1) * 15;
+		portraitDriftTargetY = ((e.clientY / window.innerHeight) * 2 - 1) * 15;
+	});
+
 	const HERO_EXIT = 500; // px of scroll to fully transition hero to nav
 
 	// Expose for cards system
@@ -40,7 +51,9 @@ document.addEventListener("DOMContentLoaded", () => {
 		const portraitY = -portraitEase * window.innerHeight * 0.6;
 		const portraitScale = lerp(1, 0.4, portraitEase);
 		const portraitOpacity = Math.max(0, 1 - portraitT * 1.4);
-		portrait.style.transform = `translateY(${portraitY}px) scale(${portraitScale})`;
+		const driftX = portraitDriftX * (1 - portraitT);
+		const driftY = portraitDriftY * (1 - portraitT);
+		portrait.style.transform = `translate(${driftX}px, ${portraitY + driftY}px) scale(${portraitScale})`;
 		portrait.style.opacity = portraitOpacity;
 
 		// --- Name: moves from center to nav bar position ---
@@ -97,6 +110,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	// Smooth scroll animation loop
 	function animateScroll() {
+		portraitDriftX += (portraitDriftTargetX - portraitDriftX) * 0.08;
+		portraitDriftY += (portraitDriftTargetY - portraitDriftY) * 0.08;
 		smoothScrollOffset += (scrollOffset - smoothScrollOffset) * 0.1;
 		// Snap when close enough
 		if (Math.abs(scrollOffset - smoothScrollOffset) < 0.5) {
