@@ -352,7 +352,6 @@ export default class LiquidCards {
 
 		this.raycaster = new THREE.Raycaster();
 		this.hoverNdc = new THREE.Vector2();
-		this.cardsYOffset = this.height;
 
 		this.ready = this.#init();
 	}
@@ -462,7 +461,8 @@ export default class LiquidCards {
 			minBottom = Math.min(minBottom, y - imageHeight * 0.5);
 		});
 
-		this.maxScroll = Math.max(0, -minBottom + this.height * 0.54);
+		// Extra height at the start for hero section (cards start below screen)
+		this.maxScroll = Math.max(0, -minBottom + this.height * 0.54 + this.height);
 		this.scroll.target = clamp(this.scroll.target, 0, this.maxScroll);
 		this.scroll.current = clamp(this.scroll.current, 0, this.maxScroll);
 		this.#updateBendPoint();
@@ -471,9 +471,6 @@ export default class LiquidCards {
 	#bindInput() {
 		window.addEventListener("wheel", (e) => {
 			if (e.target instanceof Element && e.target.closest(".lil-gui")) return;
-			// Don't scroll cards until hero is fully exited
-			const hero = window.__heroState;
-			if (hero && hero.scrollOffset < hero.exitDistance) return;
 			e.preventDefault();
 			this.scroll.target = clamp(
 				this.scroll.target + e.deltaY * this.settings.wheelSpeed,
@@ -492,8 +489,6 @@ export default class LiquidCards {
 			const t = e.touches[0];
 			const delta = touchY - t.clientY;
 			touchY = t.clientY;
-			const hero = window.__heroState;
-			if (hero && hero.scrollOffset < hero.exitDistance) return;
 			this.scroll.target = clamp(
 				this.scroll.target + delta * this.settings.touchSpeed,
 				0, this.maxScroll,
@@ -501,8 +496,6 @@ export default class LiquidCards {
 		}, { passive: true });
 
 		window.addEventListener("keydown", (e) => {
-			const hero = window.__heroState;
-			if (hero && hero.scrollOffset < hero.exitDistance) return;
 			const step = this.height * 0.6;
 			if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") {
 				e.preventDefault();
@@ -511,6 +504,9 @@ export default class LiquidCards {
 			if (e.key === "ArrowUp" || e.key === "PageUp") {
 				e.preventDefault();
 				this.scroll.target = clamp(this.scroll.target - step, 0, this.maxScroll);
+			}
+			if (e.key === "Home") {
+				this.scroll.target = 0;
 			}
 		});
 	}
@@ -544,24 +540,20 @@ export default class LiquidCards {
 		const s = this.settings;
 		const time = performance.now() / 1000;
 
-		// Cards slide up from below as hero exits
-		const hero = window.__heroState;
-		const heroProgress = hero ? Math.min(hero.scrollOffset / hero.exitDistance, 1) : 1;
-		// Start entering at 50% hero scroll, fully in at 100%
-		const cardEnterT = Math.max(0, (heroProgress - 0.5) / 0.5);
-		const cardEnterEase = 1 - Math.pow(1 - cardEnterT, 3);
-		// Offset cards below screen, slide up
-		this.cardsYOffset = (1 - cardEnterEase) * this.height * 0.8;
-		// Fade opacity
-		for (const mat of this.materials) {
-			mat.uniforms.uOpacity.value = cardEnterT;
-		}
-
 		// Scroll
 		this.scroll.previous = this.scroll.current;
 		this.scroll.current = damp(this.scroll.current, this.scroll.target, s.scrollSmoothing, dt);
 		this.scroll.velocity = this.scroll.current - this.scroll.previous;
-		this.cardsRoot.position.y = this.scroll.current - (this.cardsYOffset || 0);
+
+		// Cards exist below the screen. The belowOffset pushes them down
+		// by one screen height. As scroll increases, they naturally rise into view.
+		const belowOffset = this.height;
+		this.cardsRoot.position.y = this.scroll.current - belowOffset;
+
+		// Update hero state so the hero HTML reacts to the same scroll
+		if (window.__heroState) {
+			window.__heroState.scrollOffset = this.scroll.current;
+		}
 
 		// Pointer
 		this.pointer.current.lerp(this.pointer.target, s.pointerLerp);
