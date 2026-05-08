@@ -238,6 +238,91 @@ html, body {
 }
 
 /* ========================
+   MOBILE
+   ======================== */
+
+@media (max-width: 760px) {
+	/* Hero: stack vertically */
+	.hero-inner {
+		flex-direction: column;
+		align-items: center;
+		gap: 16px;
+		width: 92vw;
+	}
+
+	.hero-name {
+		font-size: 28px;
+		padding-right: 0;
+		letter-spacing: 0.28em;
+	}
+
+	.hero-line {
+		display: none;
+	}
+
+	.hero-portrait {
+		width: 48vw;
+		height: 48vw;
+		min-width: 48vw;
+		min-height: 48vw;
+	}
+
+	.hero-nav {
+		padding-left: 0;
+		gap: 24px;
+	}
+
+	.hero-nav a {
+		font-size: 13px;
+	}
+
+	/* Nav bar */
+	.nav-bar {
+		height: 46px;
+		padding: 0 16px;
+	}
+
+	.nav-name {
+		font-size: 16px;
+		letter-spacing: 0.18em;
+	}
+
+	.nav-line {
+		margin: 0 12px;
+	}
+
+	.nav-links {
+		gap: 16px;
+	}
+
+	.nav-links a {
+		font-size: 11px;
+		letter-spacing: 0.12em;
+	}
+}
+
+@media (max-width: 400px) {
+	.hero-name {
+		font-size: 24px;
+	}
+
+	.hero-portrait {
+		width: 56vw;
+		height: 56vw;
+		min-width: 56vw;
+		min-height: 56vw;
+	}
+
+	.nav-links {
+		gap: 12px;
+	}
+
+	.nav-links a {
+		font-size: 10px;
+	}
+}
+
+/* ========================
    REDUCED MOTION
    ======================== */
 

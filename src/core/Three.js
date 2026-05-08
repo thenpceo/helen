@@ -232,6 +232,17 @@ class Three {
 
 	#setupGUI() {
 		this.gui = new GUI({ title: "Controls" });
+		this.gui.domElement.style.display = "none";
+
+		// Ctrl+Shift+D to toggle GUI
+		window.addEventListener("keydown", (e) => {
+			if (e.ctrlKey && e.shiftKey && e.key === "D") {
+				e.preventDefault();
+				const hidden = this.gui.domElement.style.display === "none";
+				this.gui.domElement.style.display = hidden ? "" : "none";
+			}
+		});
+
 		const persist = () => this.#persist();
 
 		const relief = this.scene.reliefMaterial.uniforms;
