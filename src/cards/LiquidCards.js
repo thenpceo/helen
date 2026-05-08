@@ -365,8 +365,8 @@ class LiquidCard {
 		this.labelMaterial.uniforms.uOpacity.value = this.titleOpacity;
 		this.labelMesh.visible = this.settings.showLabels && this.titleOpacity > 0.01;
 
-		// Hover boost for saturation/contrast
-		const boostTarget = this.isHovered ? 1.0 : 0.0;
+		// Hover boost for saturation/contrast — disable when expanded
+		const boostTarget = (this.isHovered && this.expandProgress < 0.3) ? 1.0 : 0.0;
 		this.hoverBoost = force ? boostTarget : damp(this.hoverBoost, boostTarget, 8, dt);
 		this.imageMaterial.uniforms.uHoverBoost.value = this.hoverBoost;
 	}
