@@ -42,12 +42,25 @@ document.addEventListener("DOMContentLoaded", () => {
 		return a + (b - a) * t;
 	}
 
+	// Clear CSS animations so JS can control opacity/transform
+	let animationsCleared = false;
+	function clearAnimations() {
+		if (animationsCleared) return;
+		animationsCleared = true;
+		[portrait, heroName, lineLeft, lineRight, heroNav].forEach((el) => {
+			el.style.animation = "none";
+		});
+	}
+
 	function updateHero(scrollVal) {
 		const heroExit = getHeroExit();
 		window.__heroState.exitDistance = heroExit;
 
 		// t goes 0 to 1 over the hero exit distance
 		const t = Math.min(scrollVal / heroExit, 1);
+
+		// Clear CSS entrance animations once user starts scrolling
+		if (t > 0.01) clearAnimations();
 
 		// Simple smooth fade — all elements use this
 		const fade = Math.max(0, 1 - t);
