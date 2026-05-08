@@ -430,6 +430,15 @@ class Three {
 	}
 
 	#render(delta) {
+		const expandedCard = this.liquidCards?.expandedCard;
+		const expandedVisible = expandedCard && expandedCard.expandProgress > 0.01;
+
+		// Hide expanded card from the postprocessed pass
+		if (expandedVisible) {
+			expandedCard.imageMesh.visible = false;
+			expandedCard.labelMesh.visible = false;
+		}
+
 		// 1. Render relief background to output target
 		this.watercolorOverlay.render(
 			this.scene.scene,
@@ -440,7 +449,7 @@ class Three {
 			},
 		);
 
-		// 2. Render cards into the same output target (on top of relief)
+		// 2. Render cards (minus expanded) into the same output target
 		if (this.liquidCards) {
 			this.renderer.setRenderTarget(this.watercolorOverlay.outputTarget);
 			this.renderer.autoClear = false;
@@ -452,6 +461,28 @@ class Three {
 
 		// 3. Postprocess everything (relief + cards) to screen
 		this.postprocessing.render(delta);
+
+		// 4. Render expanded card directly to screen — clean, no postprocessing
+		if (expandedVisible) {
+			expandedCard.imageMesh.visible = true;
+			// Temporarily remove from cards scene, add to a clean scene
+			const parent = expandedCard.group.parent;
+			parent.remove(expandedCard.group);
+
+			if (!this._expandScene) {
+				this._expandScene = new THREE.Scene();
+			}
+			this._expandScene.add(expandedCard.group);
+
+			this.renderer.autoClear = false;
+			this.renderer.clearDepth();
+			this.renderer.render(this._expandScene, this.liquidCards.camera);
+			this.renderer.autoClear = true;
+
+			// Move back to cards scene
+			this._expandScene.remove(expandedCard.group);
+			parent.add(expandedCard.group);
+		}
 	}
 
 	#addResizeListener() {

@@ -353,7 +353,9 @@ class LiquidCard {
 	}
 
 	updateTitleTransform(dt, force = false) {
-		const targetOpacity = this.isHovered && this.settings.showLabels ? 0.92 : 0;
+		// Hide label when expanded
+		const showLabel = this.isHovered && this.settings.showLabels && this.expandProgress < 0.3;
+		const targetOpacity = showLabel ? 0.92 : 0;
 		this.titleOpacity = force ? targetOpacity : damp(this.titleOpacity, targetOpacity, 12, dt);
 		const progress = clamp(this.titleOpacity / 0.92, 0, 1);
 		const eased = 1 - Math.pow(1 - progress, 3);
@@ -414,6 +416,15 @@ class LiquidCard {
 
 		// Bring to front
 		this.group.renderOrder = eased > 0.01 ? 100 : 0;
+
+		// Suppress deformation when expanded
+		const suppress = 1 - eased;
+		this.imageMaterial.uniforms.uRippleAmplitude.value = this.settings.rippleAmplitude * suppress;
+		this.imageMaterial.uniforms.uNoiseAmplitude.value = this.settings.noiseAmplitude * suppress;
+		this.imageMaterial.uniforms.uWaterfallWaveAmplitude.value = this.settings.waterfallWaveAmplitude * suppress;
+		this.imageMaterial.uniforms.uBendDepth.value = this.settings.bendDepth * suppress;
+		this.imageMaterial.uniforms.uPointerDepth.value = this.settings.pointerDepth * suppress;
+		this.imageMaterial.uniforms.uPointerElasticity.value = this.settings.pointerElasticity * suppress;
 	}
 }
 
