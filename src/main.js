@@ -44,16 +44,18 @@ document.addEventListener("DOMContentLoaded", () => {
 			? 4 * t * t * t
 			: 1 - Math.pow(-2 * t + 2, 3) / 2;
 
-		// Portrait
+		// Shared fade — matches the line fade
+		const fadeOpacity = Math.max(0, 1 - ease * 1.3);
+
+		// Portrait — fades slightly faster
 		const portraitT = Math.min(t * 1.6, 1);
 		const portraitEase = 1 - Math.pow(1 - portraitT, 3);
 		const portraitY = -portraitEase * window.innerHeight * 0.6;
 		const portraitScale = lerp(1, 0.4, portraitEase);
-		const portraitOpacity = Math.max(0, 1 - portraitT * 1.4);
 		const driftX = portraitDriftX * (1 - portraitT);
 		const driftY = portraitDriftY * (1 - portraitT);
 		portrait.style.transform = `translate(${driftX}px, ${portraitY + driftY}px) scale(${portraitScale})`;
-		portrait.style.opacity = portraitOpacity;
+		portrait.style.opacity = Math.max(0, 1 - ease * 1.5);
 
 		// Name
 		const nameEndY = -(window.innerHeight / 2) + 26;
@@ -61,26 +63,23 @@ document.addEventListener("DOMContentLoaded", () => {
 		const nameY = lerp(0, nameEndY, ease);
 		const nameX = lerp(0, nameEndX, ease);
 		const nameScale = lerp(1, 0.42, ease);
-		const nameOpacity = t > 0.92 ? Math.max(0, 1 - (t - 0.92) / 0.08) : 1;
 		heroName.style.transform = `translate(${nameX}px, ${nameY}px) scale(${nameScale})`;
-		heroName.style.opacity = nameOpacity;
+		heroName.style.opacity = fadeOpacity;
 
 		// Lines
-		const lineOpacity = Math.max(0, 1 - ease * 1.3);
 		const lineY = lerp(0, nameEndY * 0.8, ease);
 		lineLeft.style.transform = `translateY(${lineY}px) scaleX(${lerp(1, 0, ease)})`;
-		lineLeft.style.opacity = lineOpacity;
+		lineLeft.style.opacity = fadeOpacity;
 		lineRight.style.transform = `translateY(${lineY}px) scaleX(${lerp(1, 0, ease)})`;
-		lineRight.style.opacity = lineOpacity;
+		lineRight.style.opacity = fadeOpacity;
 
 		// Nav links
 		const navEndY = nameEndY;
 		const navEndX = (window.innerWidth * 0.44) - 120;
 		const navY = lerp(0, navEndY, ease);
 		const navX = lerp(0, navEndX, ease);
-		const navOpacity = t > 0.92 ? Math.max(0, 1 - (t - 0.92) / 0.08) : 1;
 		heroNav.style.transform = `translate(${navX}px, ${navY}px) scale(${lerp(1, 0.85, ease)})`;
-		heroNav.style.opacity = navOpacity;
+		heroNav.style.opacity = fadeOpacity;
 
 		// Hero visibility
 		if (t >= 1) {
