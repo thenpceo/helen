@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Space+Grotesk:wght@300;400;500&display=swap');
 
 @font-face {
 	font-family: 'Oceanside Typewriter';
@@ -62,6 +62,13 @@ html, body {
 	pointer-events: auto;
 }
 
+/* Left group */
+.hero-left {
+	flex-shrink: 0;
+	padding-right: clamp(12px, 2vw, 28px);
+	text-align: right;
+}
+
 /* Name */
 .hero-name {
 	font-family: 'Oceanside Typewriter', 'Cormorant Garamond', serif;
@@ -71,11 +78,24 @@ html, body {
 	letter-spacing: 0.22em;
 	color: var(--ui-color);
 	white-space: nowrap;
-	flex-shrink: 0;
-	padding-right: clamp(12px, 2vw, 28px);
+	display: block;
 	opacity: 0;
 	transform: translateY(24px);
 	animation: heroFadeUp 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
+}
+
+/* Tagline under name */
+.hero-tagline {
+	font-family: 'Space Grotesk', sans-serif;
+	font-weight: 300;
+	font-size: clamp(10px, 1.1vw, 14px);
+	letter-spacing: 0.3em;
+	text-transform: uppercase;
+	color: var(--ui-color-dim);
+	margin-top: 6px;
+	opacity: 0;
+	transform: translateY(24px);
+	animation: heroFadeUp 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards;
 }
 
 /* Lines */
@@ -94,6 +114,15 @@ html, body {
 .hero-line-right {
 	transform-origin: right center;
 	animation: heroLineGrow 1s cubic-bezier(0.16, 1, 0.3, 1) 1.0s forwards;
+}
+
+/* Center group */
+.hero-center {
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 14px;
 }
 
 /* Portrait */
@@ -121,15 +150,78 @@ html, body {
 	filter: grayscale(0) contrast(1.1);
 }
 
+/* Bio text */
+.hero-bio {
+	font-family: 'Space Grotesk', sans-serif;
+	font-weight: 300;
+	font-size: clamp(11px, 1vw, 13px);
+	line-height: 1.7;
+	letter-spacing: 0.04em;
+	color: var(--ui-color-dim);
+	text-align: center;
+	max-width: 220px;
+	margin: 0;
+	opacity: 0;
+	transform: translateY(24px);
+	animation: heroFadeUp 1.1s cubic-bezier(0.16, 1, 0.3, 1) 1.0s forwards;
+}
+
+/* Right group */
+.hero-right {
+	flex-shrink: 0;
+	padding-left: clamp(12px, 2vw, 28px);
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 12px;
+}
+
 /* Nav links */
 .hero-nav {
 	display: flex;
 	gap: clamp(18px, 2.5vw, 32px);
 	flex-shrink: 0;
-	padding-left: clamp(12px, 2vw, 28px);
 	opacity: 0;
 	transform: translateY(24px);
 	animation: heroFadeUp 1.1s cubic-bezier(0.16, 1, 0.3, 1) 1.2s forwards;
+}
+
+/* Location text */
+.hero-location {
+	font-family: 'Space Grotesk', sans-serif;
+	font-weight: 300;
+	font-size: clamp(9px, 0.9vw, 11px);
+	letter-spacing: 0.25em;
+	text-transform: uppercase;
+	color: var(--ui-color-dim);
+	opacity: 0;
+	transform: translateY(24px);
+	animation: heroFadeUp 1.1s cubic-bezier(0.16, 1, 0.3, 1) 1.4s forwards;
+}
+
+/* Scroll hint */
+.hero-scroll-hint {
+	position: absolute;
+	bottom: clamp(24px, 4vh, 48px);
+	left: 50%;
+	transform: translateX(-50%);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	opacity: 0;
+	animation: heroFadeUp 1.1s cubic-bezier(0.16, 1, 0.3, 1) 1.6s forwards;
+}
+
+.hero-scroll-line {
+	width: 1px;
+	height: 32px;
+	background: var(--ui-line);
+	animation: scrollPulse 2.4s ease-in-out infinite;
+}
+
+@keyframes scrollPulse {
+	0%, 100% { transform: scaleY(1); opacity: 0.4; }
+	50% { transform: scaleY(1.6); opacity: 0.15; }
 }
 
 .hero-nav a {
@@ -246,13 +338,17 @@ html, body {
 	.hero-inner {
 		flex-direction: column;
 		align-items: center;
-		gap: 16px;
+		gap: 14px;
 		width: 92vw;
+	}
+
+	.hero-left {
+		text-align: center;
+		padding-right: 0;
 	}
 
 	.hero-name {
 		font-size: 28px;
-		padding-right: 0;
 		letter-spacing: 0.28em;
 	}
 
@@ -261,19 +357,31 @@ html, body {
 	}
 
 	.hero-portrait {
-		width: 48vw;
-		height: 48vw;
-		min-width: 48vw;
-		min-height: 48vw;
+		width: 44vw;
+		height: 44vw;
+		min-width: 44vw;
+		min-height: 44vw;
+	}
+
+	.hero-bio {
+		font-size: 11px;
+	}
+
+	.hero-right {
+		padding-left: 0;
+		align-items: center;
 	}
 
 	.hero-nav {
-		padding-left: 0;
 		gap: 24px;
 	}
 
 	.hero-nav a {
 		font-size: 13px;
+	}
+
+	.hero-location {
+		text-align: center;
 	}
 
 	/* Nav bar */

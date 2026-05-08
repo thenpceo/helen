@@ -14,6 +14,10 @@ document.addEventListener("DOMContentLoaded", () => {
 	const lineLeft = hero.querySelector(".hero-line-left");
 	const lineRight = hero.querySelector(".hero-line-right");
 	const heroNav = hero.querySelector(".hero-nav");
+	const heroBio = hero.querySelector(".hero-bio");
+	const heroTagline = hero.querySelector(".hero-tagline");
+	const heroLocation = hero.querySelector(".hero-location");
+	const heroScrollHint = hero.querySelector(".hero-scroll-hint");
 
 	// Portrait mouse drift
 	let portraitDriftX = 0;
@@ -47,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	function clearAnimations() {
 		if (animationsCleared) return;
 		animationsCleared = true;
-		[portrait, heroName, lineLeft, lineRight, heroNav].forEach((el) => {
+		[portrait, heroName, lineLeft, lineRight, heroNav, heroBio, heroTagline, heroLocation, heroScrollHint].forEach((el) => {
 			el.style.animation = "none";
 		});
 	}
@@ -92,6 +96,15 @@ document.addEventListener("DOMContentLoaded", () => {
 		// Nav links
 		heroNav.style.transform = `translateY(${drift}px)`;
 		heroNav.style.opacity = fade;
+
+		// Additional elements
+		heroBio.style.transform = `translateY(${drift}px)`;
+		heroBio.style.opacity = fade;
+		heroTagline.style.transform = `translateY(${drift}px)`;
+		heroTagline.style.opacity = fade;
+		heroLocation.style.transform = `translateY(${drift}px)`;
+		heroLocation.style.opacity = fade;
+		heroScrollHint.style.opacity = Math.max(0, 1 - t * 3);
 
 		// Hero visibility
 		if (t >= 1) {
