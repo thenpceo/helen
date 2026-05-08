@@ -417,14 +417,21 @@ class LiquidCard {
 		// Bring to front
 		this.group.renderOrder = eased > 0.01 ? 100 : 0;
 
-		// Suppress deformation when expanded
+		// Suppress ALL deformation when expanded
 		const suppress = 1 - eased;
 		this.imageMaterial.uniforms.uRippleAmplitude.value = this.settings.rippleAmplitude * suppress;
 		this.imageMaterial.uniforms.uNoiseAmplitude.value = this.settings.noiseAmplitude * suppress;
 		this.imageMaterial.uniforms.uWaterfallWaveAmplitude.value = this.settings.waterfallWaveAmplitude * suppress;
 		this.imageMaterial.uniforms.uBendDepth.value = this.settings.bendDepth * suppress;
+		this.imageMaterial.uniforms.uBendYDrift.value = this.settings.bendYDrift * suppress;
 		this.imageMaterial.uniforms.uPointerDepth.value = this.settings.pointerDepth * suppress;
 		this.imageMaterial.uniforms.uPointerElasticity.value = this.settings.pointerElasticity * suppress;
+		this.imageMaterial.uniforms.uPointerActive.value = suppress;
+		this.imageMaterial.uniforms.uScrollVelocity.value = 0;
+		this.imageMaterial.uniforms.uScrollLiftStrength.value = this.settings.scrollLiftStrength * suppress;
+		this.imageMaterial.uniforms.uBendBrighten.value = this.settings.bendBrighten * suppress;
+		this.imageMaterial.uniforms.uRippleBrighten.value = this.settings.rippleBrighten * suppress;
+		this.imageMaterial.uniforms.uBackWashout.value = this.settings.backWashout * suppress;
 	}
 }
 
@@ -816,8 +823,10 @@ export default class LiquidCards {
 			card.updateExpand(dt, this.camera, -scrollWorldY);
 		});
 
-		// Sync uniforms
+		// Sync uniforms — skip expanded card's material (updateExpand controls it)
+		const expandedMat = this.expandedCard?.imageMaterial;
 		for (const mat of this.materials) {
+			if (mat === expandedMat) continue;
 			mat.uniforms.uTime.value = time;
 			mat.uniforms.uBendPoint.value.copy(this.bendPoint);
 			mat.uniforms.uPointer.value.copy(this.pointer.current);
@@ -845,6 +854,13 @@ export default class LiquidCards {
 			mat.uniforms.uBendBrighten.value = s.bendBrighten;
 			mat.uniforms.uRippleBrighten.value = s.rippleBrighten;
 			mat.uniforms.uBackWashout.value = s.backWashout;
+		}
+
+		// Expanded card: only sync time (deformation is suppressed by updateExpand)
+		if (expandedMat) {
+			expandedMat.uniforms.uTime.value = time;
+			expandedMat.uniforms.uScrollVelocity.value = 0;
+			expandedMat.uniforms.uPointerActive.value = 0;
 		}
 	}
 
