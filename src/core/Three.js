@@ -465,14 +465,22 @@ class Three {
 		// 4. Render expanded card directly to screen — clean, no postprocessing
 		if (expandedVisible) {
 			expandedCard.imageMesh.visible = true;
-			// Temporarily remove from cards scene, add to a clean scene
-			const parent = expandedCard.group.parent;
-			parent.remove(expandedCard.group);
 
 			if (!this._expandScene) {
 				this._expandScene = new THREE.Scene();
+				this._expandContainer = new THREE.Group();
+				this._expandScene.add(this._expandContainer);
 			}
-			this._expandScene.add(expandedCard.group);
+
+			// Copy cardsRoot transform so card position is in world space
+			const cr = this.liquidCards.cardsRoot;
+			this._expandContainer.position.copy(cr.position);
+			this._expandContainer.rotation.copy(cr.rotation);
+
+			// Move card to clean scene
+			const parent = expandedCard.group.parent;
+			parent.remove(expandedCard.group);
+			this._expandContainer.add(expandedCard.group);
 
 			this.renderer.autoClear = false;
 			this.renderer.clearDepth();
@@ -480,7 +488,7 @@ class Three {
 			this.renderer.autoClear = true;
 
 			// Move back to cards scene
-			this._expandScene.remove(expandedCard.group);
+			this._expandContainer.remove(expandedCard.group);
 			parent.add(expandedCard.group);
 		}
 	}
