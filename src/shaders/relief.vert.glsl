@@ -31,7 +31,7 @@ void main() {
         float mouseInfluence = 1.0 - smoothstep(0.0, popRadius, dist);
         float mousePop = mouseInfluence * popStrength;
 
-        vPopFactor = watercolorPop;
+        vPopFactor = useWatercolorPop ? max(watercolorPop, mousePop) : mousePop;
 
         vPosition.z = mix(0.01, vPosition.z, vPopFactor);
         

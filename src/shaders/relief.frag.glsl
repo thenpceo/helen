@@ -6,6 +6,7 @@ uniform float envMapIntensity;
 uniform sampler2D envMap;
 uniform float time;
 uniform float grainIntensity;
+uniform vec3 shadowColor;
 
 #include './grain.glsl';
 
@@ -26,10 +27,10 @@ void main() {
 
     float shadowMask = getShadowMask();
 
-    vec3 shadowColor = vec3(0.0, 0.016, 0.208);
+    vec3 sc = shadowColor;
 
     vec3 finalColor = mix(
-        color * shadowColor * 0.5,
+        color * sc * 0.5,
         color,
         shadowMask
     );

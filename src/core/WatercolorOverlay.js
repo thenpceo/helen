@@ -20,6 +20,12 @@ class WatercolorOverlay {
 		this.#createFBOScene();
 		this.#createOverlayScene();
 		this.#initializeWhiteTarget();
+
+		this.outputTarget = new THREE.WebGLRenderTarget(this.width, this.height, {
+			minFilter: THREE.LinearFilter,
+			magFilter: THREE.LinearFilter,
+			format: THREE.RGBAFormat,
+		});
 	}
 
 	#createRenderTargets() {
@@ -61,6 +67,7 @@ class WatercolorOverlay {
 			new THREE.SphereGeometry(0.3, 32, 32),
 			new THREE.MeshBasicMaterial({ color: 0xffffff }),
 		);
+		this.brush.scale.setScalar(1.2);
 		this.brushScene.add(this.brush);
 	}
 
@@ -93,7 +100,7 @@ class WatercolorOverlay {
 			uniforms: {
 				tWatercolor: { value: this.targetA.texture },
 				overlayColor: {
-					value: new THREE.Color(0.993 * 0.75, 0.93 * 0.75, 0.93 * 0.75),
+					value: new THREE.Color("#d2e2e9"),
 				},
 				time: { value: 0 },
 				grainIntensity: { value: 0.075 },
@@ -152,13 +159,14 @@ class WatercolorOverlay {
 			onBeforeMainRender(this.targetA.texture);
 		}
 
-		this.renderer.setRenderTarget(null);
+		this.renderer.setRenderTarget(this.outputTarget);
 		this.renderer.clear();
 		this.renderer.render(mainScene, mainCamera);
 
 		this.renderer.autoClear = false;
 		this.overlayMaterial.uniforms.tWatercolor.value = this.targetA.texture;
 		this.renderer.render(this.overlayScene, this.fboCamera);
+		this.renderer.autoClear = true;
 
 		const temp = this.targetA;
 		this.targetA = this.targetB;
@@ -174,6 +182,7 @@ class WatercolorOverlay {
 		this.targetA.setSize(width, height);
 		this.targetB.setSize(width, height);
 
+		this.outputTarget.setSize(width, height);
 		this.fboMaterial.uniforms.resolution.value.set(width, height, 1, 1);
 		this.#initializeWhiteTarget();
 	}

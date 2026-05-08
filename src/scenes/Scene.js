@@ -24,7 +24,8 @@ export default class Scene {
 		this.lastInputTime = 0;
 		this.idleTimeout = 0.6;
 		this.isIdle = true;
-		this.#init();
+		this.idleEnabled = false;
+		this.ready = this.#init();
 	}
 
 	async #init() {
@@ -46,19 +47,19 @@ export default class Scene {
 		const pmremGenerator = new THREE.PMREMGenerator(this.context.renderer);
 		this.envMap = pmremGenerator.fromScene(environment).texture;
 		this.scene.environment = this.envMap;
-		this.scene.environmentIntensity = 0.1;
+		this.scene.environmentIntensity = 0;
 	}
 
 	#setupCamera() {
 		this.#calculateAspectRatio();
 		this.camera = new THREE.PerspectiveCamera(45, this.aspectRatio, 0.001, 100);
 		this.camera.position.z = 2;
-		this.camera.position.y = 0.4;
+		this.camera.position.y = 0.03;
 		this.camera.position.x = 0.4;
 	}
 
 	#addLights() {
-		this.light = new THREE.DirectionalLight(0xffffff, 1.0);
+		this.light = new THREE.DirectionalLight(0xffffff, 0);
 		this.light.position.set(1.0, 1.0, 1.0);
 		this.light.castShadow = true;
 		this.light.shadow.mapSize.width = 4096;
@@ -73,7 +74,7 @@ export default class Scene {
 		this.light.shadow.radius = 6.0;
 		this.scene.add(this.light);
 
-		this.light2 = new THREE.DirectionalLight(0xffffff, 1.0);
+		this.light2 = new THREE.DirectionalLight(0xffffff, 0);
 		this.light2.position.set(2.0, 0.5, 1.0);
 		this.light2.castShadow = true;
 		this.light2.shadow.mapSize.width = 4096;
@@ -103,12 +104,13 @@ export default class Scene {
 				time: { value: 0.0 },
 				envMap: { value: this.envMap },
 				envMapIntensity: { value: 0.8 },
-				grainIntensity: { value: 0.075 },
+				grainIntensity: { value: 0.121 },
 				mousePosition: { value: new THREE.Vector2(0, 0) },
-				popRadius: { value: 1.0 },
-				popStrength: { value: 1.0 },
+				popRadius: { value: 0.7 },
+				popStrength: { value: 1.25 },
 				tWatercolor: { value: null },
 				useWatercolorPop: { value: true },
+				shadowColor: { value: new THREE.Color("#d6feff") },
 			},
 			defines: {
 				ENVMAP_TYPE_CUBE_UV: "",
@@ -119,17 +121,21 @@ export default class Scene {
 			lights: true,
 		});
 
-		new ImportGltf(`${import.meta.env.BASE_URL}man_relief.glb`, {
-			onLoad: (model) => {
-				this.mesh = model;
+		await new Promise((resolve) => {
+			new ImportGltf(`${import.meta.env.BASE_URL}reefglbflat2.glb`, {
+				onLoad: (model) => {
+					this.mesh = model;
 
-				this.mesh.traverse((children) => {
-					if (!children.isMesh) return;
-					children.material = this.reliefMaterial;
-				});
+					this.mesh.traverse((children) => {
+						if (!children.isMesh) return;
+						children.material = this.reliefMaterial;
+					});
 
-				this.scene.add(model);
-			},
+					this.mesh.scale.setScalar(0.9);
+					this.scene.add(model);
+					resolve();
+				},
+			});
 		});
 	}
 
@@ -202,7 +208,7 @@ export default class Scene {
 		const currentTime = performance.now() / 1000;
 		const timeSinceInput = currentTime - this.lastInputTime;
 
-		if (timeSinceInput > this.idleTimeout) {
+		if (this.idleEnabled && timeSinceInput > this.idleTimeout) {
 			this.isIdle = true;
 			this.#simulateIdleMovement(elapsed);
 		}
