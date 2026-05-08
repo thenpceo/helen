@@ -410,15 +410,36 @@ html, body {
 }
 
 @media (max-width: 400px) {
+	.hero-inner {
+		gap: 10px;
+	}
+
 	.hero-name {
 		font-size: 24px;
 	}
 
+	.hero-tagline {
+		font-size: 9px;
+	}
+
 	.hero-portrait {
-		width: 56vw;
-		height: 56vw;
-		min-width: 56vw;
-		min-height: 56vw;
+		width: 50vw;
+		height: 50vw;
+		min-width: 50vw;
+		min-height: 50vw;
+	}
+
+	.hero-bio {
+		font-size: 10px;
+		max-width: 180px;
+	}
+
+	.hero-nav a {
+		font-size: 12px;
+	}
+
+	.hero-location {
+		font-size: 8px;
 	}
 
 	.nav-links {
