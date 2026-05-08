@@ -16,7 +16,42 @@ const IMAGE_URLS = [
 	"img_1066.jpg", "venusvoyage-7.jpg",
 ].map((f) => `${import.meta.env.BASE_URL}photos/${f}`);
 
-const CARD_LABELS = IMAGE_URLS.map((_, i) => `PHOTO ${String(i + 1).padStart(2, "0")}`);
+const CARD_DATA = [
+	{ name: "Taro Valley",           date: "Jun 2025" },
+	{ name: "Kohala Coast",          date: "Jul 2025" },
+	{ name: "Valley Rainbow",        date: "Jun 2025" },
+	{ name: "The Observer",          date: "Sep 2025" },
+	{ name: "Glasswing",             date: "Oct 2025" },
+	{ name: "Longtail Crossing",     date: "Aug 2025" },
+	{ name: "Hidden Falls",          date: "Jun 2025" },
+	{ name: "Sunken Forest",         date: "Aug 2025" },
+	{ name: "West Maui",             date: "Jul 2025" },
+	{ name: "Island Harbor",         date: "Aug 2025" },
+	{ name: "Morning Shore",         date: "Sep 2025" },
+	{ name: "Golden Hour Surfers",   date: "Jul 2025" },
+	{ name: "Red Rock Solitude",     date: "Nov 2025" },
+	{ name: "Capitol Reef Sunset",   date: "Nov 2025" },
+	{ name: "Kelingking Cove",       date: "Oct 2025" },
+	{ name: "Pinnacles",             date: "Dec 2025" },
+	{ name: "Forest Floor",          date: "Oct 2025" },
+	{ name: "Waimea Canyon",         date: "Jul 2025" },
+	{ name: "Rolling Hills",         date: "May 2025" },
+	{ name: "Windswept",             date: "May 2025" },
+	{ name: "Island Passage",        date: "Sep 2025" },
+	{ name: "Cathedral Cove",        date: "May 2025" },
+	{ name: "Rainforest Canopy",     date: "Sep 2025" },
+	{ name: "Shoreline",             date: "Jul 2025" },
+	{ name: "Winter Creek",          date: "Jan 2026" },
+	{ name: "Garden Rose",           date: "Jun 2025" },
+	{ name: "Honey Bee",             date: "Jun 2025" },
+	{ name: "Sequoia Grove",         date: "Jan 2026" },
+	{ name: "Giant Sequoia",         date: "Jan 2026" },
+	{ name: "Red Bloom",             date: "Jun 2025" },
+	{ name: "Rose Garden",           date: "Jun 2025" },
+	{ name: "Distant Falls",         date: "Jun 2025" },
+	{ name: "Haleakala Crater",      date: "Jul 2025" },
+	{ name: "Jungle Pool",           date: "Oct 2025" },
+];
 
 export const CARD_SETTINGS = {
 	cardScale: 1.25,
@@ -141,6 +176,7 @@ const fragmentShader = /* glsl */ `
 	uniform float uBendBrighten;
 	uniform float uRippleBrighten;
 	uniform float uBackWashout;
+	uniform float uHoverBoost;
 
 	varying vec2 vUv;
 	varying float vBend;
@@ -164,6 +200,16 @@ const fragmentShader = /* glsl */ `
 		float lift = vBend * uBendBrighten + abs(vRipple) * uRippleBrighten;
 		color.rgb += lift;
 		color.rgb = mix(color.rgb, vec3(1.0), vBend * uBackWashout);
+
+		// Hover boost: increase saturation and contrast
+		if (uHoverBoost > 0.001) {
+			// Saturation boost
+			float lum = dot(color.rgb, vec3(0.299, 0.587, 0.114));
+			color.rgb = mix(vec3(lum), color.rgb, 1.0 + uHoverBoost * 0.15);
+			// Contrast boost
+			color.rgb = (color.rgb - 0.5) * (1.0 + uHoverBoost * 0.08) + 0.5;
+		}
+
 		color.a *= uOpacity;
 		gl_FragColor = color;
 	}
@@ -203,6 +249,7 @@ function createCardMaterial(texture, imageSize, settings, bendPoint, pointer, op
 			uRippleBrighten: { value: settings.rippleBrighten },
 			uBackWashout: { value: settings.backWashout },
 			uOpacity: { value: opacity },
+			uHoverBoost: { value: 0 },
 		},
 		vertexShader,
 		fragmentShader,
@@ -212,7 +259,7 @@ function createCardMaterial(texture, imageSize, settings, bendPoint, pointer, op
 	});
 }
 
-function createLabelTexture(label, index) {
+function createLabelTexture(name, date) {
 	const canvas = document.createElement("canvas");
 	canvas.width = 1400;
 	canvas.height = 260;
@@ -222,29 +269,36 @@ function createLabelTexture(label, index) {
 	ctx.shadowBlur = 24;
 	ctx.shadowOffsetY = 5;
 	ctx.fillStyle = "#ffffff";
-	ctx.font = "700 88px Inter, Arial, sans-serif";
-	ctx.letterSpacing = "10px";
-	ctx.fillText(label, 0, 112);
+	ctx.font = "700 80px Inter, Arial, sans-serif";
+	ctx.letterSpacing = "6px";
+	ctx.fillText(name, 0, 108);
 	ctx.shadowBlur = 16;
 	ctx.shadowOffsetY = 3;
-	ctx.fillStyle = "rgba(255, 255, 255, 0.76)";
-	ctx.font = "600 32px Inter, Arial, sans-serif";
-	ctx.letterSpacing = "5px";
-	ctx.fillText(`FIELD ${String(index + 1).padStart(2, "0")}`, 4, 168);
+	ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+	ctx.font = "400 34px Inter, Arial, sans-serif";
+	ctx.letterSpacing = "4px";
+	ctx.fillText(date, 4, 168);
 	const texture = new THREE.CanvasTexture(canvas);
 	texture.colorSpace = THREE.SRGBColorSpace;
 	return { texture, size: new THREE.Vector2(canvas.width, canvas.height) };
 }
 
 class LiquidCard {
-	constructor({ texture, imageSize, label, index, settings, bendPoint, pointer }) {
+	constructor({ texture, imageSize, name, date, index, settings, bendPoint, pointer }) {
 		this.group = new THREE.Group();
 		this.index = index;
 		this.segments = 0;
 		this.isHovered = false;
+		this.hoverBoost = 0;
 		this.titleOpacity = 0;
 		this.titleBasePosition = new THREE.Vector3();
 		this.settings = settings;
+
+		// For click-to-expand
+		this.isExpanded = false;
+		this.expandProgress = 0;
+		this.gridPosition = new THREE.Vector3();
+		this.gridScale = new THREE.Vector2(1, 1);
 
 		this.imageMaterial = createCardMaterial(texture, imageSize, settings, bendPoint, pointer);
 		this.imageMesh = new THREE.Mesh(
@@ -255,7 +309,7 @@ class LiquidCard {
 		this.imageMesh.userData.card = this;
 		this.group.add(this.imageMesh);
 
-		const labelData = createLabelTexture(label, index);
+		const labelData = createLabelTexture(name, date);
 		this.labelMaterial = createCardMaterial(labelData.texture, labelData.size, settings, bendPoint, pointer, 0);
 		this.labelMesh = new THREE.Mesh(
 			new THREE.PlaneGeometry(1, 1, 1, 1),
@@ -308,6 +362,58 @@ class LiquidCard {
 		this.labelMesh.position.z = this.titleBasePosition.z + eased * 4;
 		this.labelMaterial.uniforms.uOpacity.value = this.titleOpacity;
 		this.labelMesh.visible = this.settings.showLabels && this.titleOpacity > 0.01;
+
+		// Hover boost for saturation/contrast
+		const boostTarget = this.isHovered ? 1.0 : 0.0;
+		this.hoverBoost = force ? boostTarget : damp(this.hoverBoost, boostTarget, 8, dt);
+		this.imageMaterial.uniforms.uHoverBoost.value = this.hoverBoost;
+	}
+
+	updateExpand(dt, camera, scrollY) {
+		const targetProgress = this.isExpanded ? 1 : 0;
+		this.expandProgress = damp(this.expandProgress, targetProgress, 5, dt);
+
+		if (this.expandProgress < 0.001 && !this.isExpanded) {
+			this.expandProgress = 0;
+			return;
+		}
+
+		const t = this.expandProgress;
+		const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+		// Target: center of viewport in world space
+		const vFov = camera.fov * Math.PI / 180;
+		const viewHeight = 2 * Math.tan(vFov / 2) * camera.position.z;
+		const viewWidth = viewHeight * camera.aspect;
+
+		// Target scale: fill 85% of viewport while keeping aspect ratio
+		const imgW = this.gridScale.x;
+		const imgH = this.gridScale.y;
+		const imgAspect = imgW / imgH;
+		const viewAspect = viewWidth / viewHeight;
+		let targetScale;
+		if (imgAspect > viewAspect) {
+			targetScale = (viewWidth * 0.85) / imgW;
+		} else {
+			targetScale = (viewHeight * 0.85) / imgH;
+		}
+
+		// Target position: center of screen, accounting for scroll
+		const targetX = 0;
+		const targetY = scrollY;
+		const targetZ = 200; // come forward in Z
+
+		// Interpolate position
+		this.group.position.x = this.gridPosition.x + (targetX - this.gridPosition.x) * eased;
+		this.group.position.y = this.gridPosition.y + (targetY - this.gridPosition.y) * eased;
+		this.group.position.z = eased * targetZ;
+
+		// Interpolate scale
+		const s = 1 + (targetScale - 1) * eased;
+		this.imageMesh.scale.set(imgW * s, imgH * s, 1);
+
+		// Bring to front
+		this.group.renderOrder = eased > 0.01 ? 100 : 0;
 	}
 }
 
@@ -352,6 +458,7 @@ export default class LiquidCards {
 
 		this.raycaster = new THREE.Raycaster();
 		this.hoverNdc = new THREE.Vector2();
+		this.expandedCard = null;
 
 		this.ready = this.#init();
 	}
@@ -392,10 +499,12 @@ export default class LiquidCards {
 			.map((r) => r.value);
 
 		this.cards = textures.map((data, i) => {
+			const cardData = CARD_DATA[i] || { name: `Photo ${i + 1}`, date: "2025" };
 			const card = new LiquidCard({
 				texture: data.texture,
 				imageSize: data.imageSize,
-				label: CARD_LABELS[i],
+				name: cardData.name,
+				date: cardData.date,
 				index: i,
 				settings: this.settings,
 				bendPoint: this.bendPoint,
@@ -511,6 +620,8 @@ export default class LiquidCards {
 
 			const labelHeight = s.showLabels ? clamp(imageWidth * 0.14, 56, 94) : 1;
 			card.group.position.set(cardX, cardY, 0);
+			card.gridPosition.set(cardX, cardY, 0);
+			card.gridScale.set(imageWidth, imageHeight);
 			card.resize(imageWidth, imageHeight, labelHeight, this.width, this.height, s);
 			minBottom = Math.min(minBottom, cardY - imageHeight / 2);
 		});
@@ -537,6 +648,8 @@ export default class LiquidCards {
 
 			const labelHeight = s.showLabels ? clamp(imageWidth * 0.14, 46, 82) : 1;
 			card.group.position.set(x, y, 0);
+			card.gridPosition.set(x, y, 0);
+			card.gridScale.set(imageWidth, imageHeight);
 			card.resize(imageWidth, imageHeight, labelHeight, this.width, this.height, s);
 			minBottom = Math.min(minBottom, y - imageHeight / 2);
 		});
@@ -585,6 +698,44 @@ export default class LiquidCards {
 			}
 			if (e.key === "Home") {
 				this.scroll.target = 0;
+			}
+			if (e.key === "Escape" && this.expandedCard) {
+				this.expandedCard.isExpanded = false;
+				this.expandedCard = null;
+			}
+		});
+
+		// Click to expand/collapse
+		window.addEventListener("click", (e) => {
+			if (e.target instanceof Element && e.target.closest(".lil-gui")) return;
+			if (e.target instanceof Element && e.target.closest(".hero")) return;
+			if (e.target instanceof Element && e.target.closest(".nav-bar")) return;
+
+			const hero = window.__heroState;
+			if (hero && hero.scrollOffset < hero.exitDistance) return;
+
+			// If a card is expanded, collapse it
+			if (this.expandedCard) {
+				this.expandedCard.isExpanded = false;
+				this.expandedCard = null;
+				return;
+			}
+
+			// Raycast to find clicked card
+			const ndc = new THREE.Vector2(
+				(e.clientX / this.width) * 2 - 1,
+				-(e.clientY / this.height) * 2 + 1,
+			);
+			this.cardsRoot.updateMatrixWorld(true);
+			this.raycaster.setFromCamera(ndc, this.camera);
+			const hits = this.raycaster.intersectObjects(
+				this.cards.map((c) => c.imageMesh),
+				false,
+			);
+			const card = hits[0]?.object?.userData?.card;
+			if (card) {
+				card.isExpanded = true;
+				this.expandedCard = card;
 			}
 		});
 	}
@@ -647,6 +798,12 @@ export default class LiquidCards {
 
 		// Hover detection
 		this.#updateHover(dt);
+
+		// Expand animation
+		const scrollWorldY = this.cardsRoot.position.y;
+		this.cards.forEach((card) => {
+			card.updateExpand(dt, this.camera, -scrollWorldY);
+		});
 
 		// Sync uniforms
 		for (const mat of this.materials) {
