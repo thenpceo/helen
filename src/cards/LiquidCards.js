@@ -417,55 +417,133 @@ export default class LiquidCards {
 	#layoutCards() {
 		const s = this.settings;
 		const isNarrow = this.width < 760;
-		const desktopBento = [
-			{ x: -0.36, y: 0.30, w: 0.58, r: 0.58 },
-			{ x: 0.43, y: 0.18, w: 0.50, r: 0.70 },
-			{ x: -0.28, y: -0.34, w: 0.56, r: 0.64 },
-			{ x: 0.46, y: -0.45, w: 0.60, r: 0.55 },
-			{ x: -0.46, y: -0.96, w: 0.48, r: 0.88 },
-			{ x: 0.30, y: -1.02, w: 0.66, r: 0.58 },
+		const gap = s.desktopGap;
+
+		// Bento size templates — repeating pattern of varied card sizes
+		// cols: how many grid columns this card spans
+		// r: aspect ratio (height / width)
+		const bentoPattern = [
+			{ cols: 2, r: 0.62 },  // wide
+			{ cols: 1, r: 1.2 },   // tall portrait
+			{ cols: 1, r: 0.75 },  // landscape
+			{ cols: 1, r: 0.9 },   // near-square
+			{ cols: 2, r: 0.55 },  // wide panoramic
+			{ cols: 1, r: 1.1 },   // tall
+			{ cols: 1, r: 0.7 },   // landscape
+			{ cols: 1, r: 0.85 },  // near-square
+			{ cols: 2, r: 0.65 },  // wide
+			{ cols: 1, r: 1.0 },   // square
 		];
-		const mobileBento = [
-			{ x: -0.12, w: 1.12, r: 0.64 },
-			{ x: 0.12, w: 1.04, r: 0.78 },
-			{ x: -0.08, w: 1.16, r: 0.62 },
-			{ x: 0.15, w: 1.08, r: 0.72 },
-			{ x: -0.16, w: 1.02, r: 0.92 },
-			{ x: 0.08, w: 1.18, r: 0.60 },
-		];
+
+		if (isNarrow) {
+			this.#layoutMobile(gap);
+		} else {
+			this.#layoutDesktop(gap, bentoPattern);
+		}
+
+		this.#updateBendPoint();
+	}
+
+	#layoutDesktop(gap, bentoPattern) {
+		const s = this.settings;
+		const numCols = 3;
+		const totalGridWidth = this.width * 0.82 * s.cardScale;
+		const colWidth = (totalGridWidth - gap * (numCols - 1)) / numCols;
+		const gridLeft = -totalGridWidth / 2;
+		const startY = this.height * 0.4;
+
+		// Track the bottom of each column
+		const colHeights = new Array(numCols).fill(0);
 
 		let minBottom = Infinity;
+
 		this.cards.forEach((card, index) => {
-			let x, y, imageWidth, imageHeight;
-			if (isNarrow) {
-				const item = mobileBento[index % mobileBento.length];
-				imageWidth = clamp(this.width * item.w * s.cardScale, 300, 620);
-				imageHeight = imageWidth * item.r;
-				const prev = this.cards.slice(0, index).reduce((sum, _, pi) => {
-					const p = mobileBento[pi % mobileBento.length];
-					const pw = clamp(this.width * p.w * s.cardScale, 300, 620);
-					return sum + pw * p.r + s.mobileGap;
-				}, 0);
-				x = this.width * item.x;
-				y = this.height * (0.5 - s.mobileTop) - imageHeight * 0.5 - prev;
+			const pattern = bentoPattern[index % bentoPattern.length];
+			let spanCols = pattern.cols;
+
+			// Find best starting column for this card
+			let bestCol = 0;
+
+			if (spanCols > 1) {
+				// Multi-column card: find the position where the tallest
+				// column among the spanned ones is shortest
+				let bestMaxHeight = Infinity;
+				for (let c = 0; c <= numCols - spanCols; c++) {
+					let maxH = 0;
+					for (let s = 0; s < spanCols; s++) {
+						maxH = Math.max(maxH, colHeights[c + s]);
+					}
+					if (maxH < bestMaxHeight) {
+						bestMaxHeight = maxH;
+						bestCol = c;
+					}
+				}
 			} else {
-				const item = desktopBento[index % desktopBento.length];
-				imageWidth = clamp(this.width * item.w * s.cardScale, 360, 920);
-				imageHeight = imageWidth * item.r;
-				x = this.width * item.x * s.columnSpacing / 0.72;
-				y = this.height * (item.y + s.desktopTop) - Math.floor(index / desktopBento.length) * (this.height * 1.58 + s.desktopGap);
+				// Single column: find the shortest column
+				let minH = Infinity;
+				for (let c = 0; c < numCols; c++) {
+					if (colHeights[c] < minH) {
+						minH = colHeights[c];
+						bestCol = c;
+					}
+				}
 			}
-			const labelHeight = s.showLabels ? clamp(imageWidth * 0.14, isNarrow ? 46 : 56, isNarrow ? 82 : 94) : 1;
-			card.group.position.set(x, y, 0);
+
+			// Calculate card dimensions
+			const imageWidth = colWidth * spanCols + gap * (spanCols - 1);
+			const imageHeight = imageWidth * pattern.r;
+
+			// Position: top-left of the card's grid slot
+			const cardX = gridLeft + bestCol * (colWidth + gap) + imageWidth / 2;
+
+			// Y position: below the tallest column being spanned
+			let topOfCard = 0;
+			for (let c = bestCol; c < bestCol + spanCols; c++) {
+				topOfCard = Math.max(topOfCard, colHeights[c]);
+			}
+			const cardY = startY - topOfCard - imageHeight / 2;
+
+			// Update column heights
+			const newBottom = topOfCard + imageHeight + gap;
+			for (let c = bestCol; c < bestCol + spanCols; c++) {
+				colHeights[c] = newBottom;
+			}
+
+			const labelHeight = s.showLabels ? clamp(imageWidth * 0.14, 56, 94) : 1;
+			card.group.position.set(cardX, cardY, 0);
 			card.resize(imageWidth, imageHeight, labelHeight, this.width, this.height, s);
-			minBottom = Math.min(minBottom, y - imageHeight * 0.5);
+			minBottom = Math.min(minBottom, cardY - imageHeight / 2);
 		});
 
-		// Extra height at the start for hero section (cards start below screen)
 		this.maxScroll = Math.max(0, -minBottom + this.height * 0.54 + this.height);
 		this.scroll.target = clamp(this.scroll.target, 0, this.maxScroll);
 		this.scroll.current = clamp(this.scroll.current, 0, this.maxScroll);
-		this.#updateBendPoint();
+	}
+
+	#layoutMobile(gap) {
+		const s = this.settings;
+		const cardWidth = this.width * 0.88 * s.cardScale;
+		const startY = this.height * 0.4;
+		let cursor = 0;
+		let minBottom = Infinity;
+
+		this.cards.forEach((card, index) => {
+			const r = [0.7, 0.85, 0.62, 0.9, 0.75, 0.65][index % 6];
+			const imageWidth = clamp(cardWidth, 280, 560);
+			const imageHeight = imageWidth * r;
+			const x = 0;
+			const y = startY - cursor - imageHeight / 2;
+			cursor += imageHeight + gap;
+
+			const labelHeight = s.showLabels ? clamp(imageWidth * 0.14, 46, 82) : 1;
+			card.group.position.set(x, y, 0);
+			card.resize(imageWidth, imageHeight, labelHeight, this.width, this.height, s);
+			minBottom = Math.min(minBottom, y - imageHeight / 2);
+		});
+
+		this.maxScroll = Math.max(0, -minBottom + this.height * 0.54 + this.height);
+		this.scroll.target = clamp(this.scroll.target, 0, this.maxScroll);
+		this.scroll.current = clamp(this.scroll.current, 0, this.maxScroll);
 	}
 
 	#bindInput() {
