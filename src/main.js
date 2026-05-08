@@ -52,6 +52,11 @@ document.addEventListener("DOMContentLoaded", () => {
 		});
 	}
 
+	// Clear portrait animation as soon as it finishes so mouse drift works immediately
+	portrait.addEventListener("animationend", () => {
+		portrait.style.animation = "none";
+	});
+
 	function updateHero(scrollVal) {
 		const heroExit = getHeroExit();
 		window.__heroState.exitDistance = heroExit;
