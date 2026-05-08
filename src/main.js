@@ -26,12 +26,16 @@ document.addEventListener("DOMContentLoaded", () => {
 		portraitDriftTargetY = ((e.clientY / window.innerHeight) * 2 - 1) * 15;
 	});
 
-	const HERO_EXIT = 500;
+	// Hero exit distance matches screen height so hero and cards transition
+	// is perfectly continuous — cards start appearing as hero fades
+	function getHeroExit() {
+		return window.innerHeight * 0.7;
+	}
 
-	// Expose hero state for cards — cards read this to know scroll position
+	// Expose hero state for cards
 	window.__heroState = {
 		scrollOffset: 0,
-		exitDistance: HERO_EXIT,
+		exitDistance: getHeroExit(),
 	};
 
 	function lerp(a, b, t) {
@@ -39,47 +43,37 @@ document.addEventListener("DOMContentLoaded", () => {
 	}
 
 	function updateHero(scrollVal) {
-		const t = Math.min(scrollVal / HERO_EXIT, 1);
-		const ease = t < 0.5
-			? 4 * t * t * t
-			: 1 - Math.pow(-2 * t + 2, 3) / 2;
+		const heroExit = getHeroExit();
+		window.__heroState.exitDistance = heroExit;
 
-		// Shared fade — matches the line fade
-		const fadeOpacity = Math.max(0, 1 - ease * 1.3);
+		// t goes 0 to 1 over the hero exit distance
+		const t = Math.min(scrollVal / heroExit, 1);
 
-		// Portrait — fades slightly faster
-		const portraitT = Math.min(t * 1.6, 1);
-		const portraitEase = 1 - Math.pow(1 - portraitT, 3);
-		const portraitY = -portraitEase * window.innerHeight * 0.6;
-		const portraitScale = lerp(1, 0.4, portraitEase);
-		const driftX = portraitDriftX * (1 - portraitT);
-		const driftY = portraitDriftY * (1 - portraitT);
-		portrait.style.transform = `translate(${driftX}px, ${portraitY + driftY}px) scale(${portraitScale})`;
-		portrait.style.opacity = Math.max(0, 1 - ease * 1.5);
+		// Simple smooth fade — all elements use this
+		const fade = Math.max(0, 1 - t);
+
+		// Gentle upward drift as you scroll — all elements move up together
+		const drift = -t * window.innerHeight * 0.15;
+
+		// Portrait
+		const driftX = portraitDriftX * fade;
+		const driftY = portraitDriftY * fade;
+		portrait.style.transform = `translate(${driftX}px, ${drift + driftY}px)`;
+		portrait.style.opacity = fade;
 
 		// Name
-		const nameEndY = -(window.innerHeight / 2) + 26;
-		const nameEndX = -(window.innerWidth * 0.44) + 52;
-		const nameY = lerp(0, nameEndY, ease);
-		const nameX = lerp(0, nameEndX, ease);
-		const nameScale = lerp(1, 0.42, ease);
-		heroName.style.transform = `translate(${nameX}px, ${nameY}px) scale(${nameScale})`;
-		heroName.style.opacity = fadeOpacity;
+		heroName.style.transform = `translateY(${drift}px)`;
+		heroName.style.opacity = fade;
 
 		// Lines
-		const lineY = lerp(0, nameEndY * 0.8, ease);
-		lineLeft.style.transform = `translateY(${lineY}px) scaleX(${lerp(1, 0, ease)})`;
-		lineLeft.style.opacity = fadeOpacity;
-		lineRight.style.transform = `translateY(${lineY}px) scaleX(${lerp(1, 0, ease)})`;
-		lineRight.style.opacity = fadeOpacity;
+		lineLeft.style.transform = `translateY(${drift}px) scaleX(${fade})`;
+		lineLeft.style.opacity = fade;
+		lineRight.style.transform = `translateY(${drift}px) scaleX(${fade})`;
+		lineRight.style.opacity = fade;
 
 		// Nav links
-		const navEndY = nameEndY;
-		const navEndX = (window.innerWidth * 0.44) - 120;
-		const navY = lerp(0, navEndY, ease);
-		const navX = lerp(0, navEndX, ease);
-		heroNav.style.transform = `translate(${navX}px, ${navY}px) scale(${lerp(1, 0.85, ease)})`;
-		heroNav.style.opacity = fadeOpacity;
+		heroNav.style.transform = `translateY(${drift}px)`;
+		heroNav.style.opacity = fade;
 
 		// Hero visibility
 		if (t >= 1) {
@@ -90,22 +84,22 @@ document.addEventListener("DOMContentLoaded", () => {
 			hero.style.pointerEvents = "";
 		}
 
-		// Nav bar
-		if (t >= 0.85) {
+		// Nav bar fades in as hero fades out
+		if (t >= 0.7) {
+			const navT = (t - 0.7) / 0.3;
 			navBar.classList.add("visible");
-			navBar.style.opacity = (t - 0.85) / 0.15;
+			navBar.style.opacity = navT;
 		} else {
 			navBar.classList.remove("visible");
 			navBar.style.opacity = 0;
 		}
 	}
 
-	// Animation loop — just handles portrait drift and reads card scroll for hero
+	// Animation loop
 	function animate() {
 		portraitDriftX += (portraitDriftTargetX - portraitDriftX) * 0.08;
 		portraitDriftY += (portraitDriftTargetY - portraitDriftY) * 0.08;
 
-		// Read the cards' smooth scroll value to drive hero
 		const cardScroll = window.__heroState.scrollOffset || 0;
 		updateHero(cardScroll);
 
