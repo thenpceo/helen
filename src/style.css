@@ -33,10 +33,10 @@ html, body {
    ======================== */
 
 :root {
-	--ui-color: rgba(55, 65, 75, 0.9);
-	--ui-color-dim: rgba(55, 65, 75, 0.5);
-	--ui-color-bright: rgba(80, 95, 110, 0.95);
-	--ui-line: rgba(55, 65, 75, 0.3);
+	--ui-color: rgba(35, 42, 50, 0.9);
+	--ui-color-dim: rgba(35, 42, 50, 0.5);
+	--ui-color-bright: rgba(60, 70, 82, 0.95);
+	--ui-line: rgba(35, 42, 50, 0.25);
 }
 
 /* ========================
@@ -137,7 +137,7 @@ html, body {
 	font-weight: 400;
 	font-size: clamp(12px, 1.3vw, 16px);
 	letter-spacing: 0.16em;
-	text-transform: uppercase;
+	text-transform: none;
 	color: var(--ui-color-dim);
 	text-decoration: none;
 	cursor: pointer;
@@ -202,7 +202,7 @@ html, body {
 	font-weight: 400;
 	font-size: 13px;
 	letter-spacing: 0.16em;
-	text-transform: uppercase;
+	text-transform: none;
 	color: var(--ui-color-dim);
 	text-decoration: none;
 	cursor: pointer;
