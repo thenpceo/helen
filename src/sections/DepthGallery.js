@@ -83,6 +83,9 @@ export default class DepthGallery {
 			scrollSpeed: 0.2,
 		};
 
+		// Expose scroll speed globally so card system can allocate enough scroll space
+		window.__depthGalleryScrollSpeed = this.settings.scrollSpeed;
+
 		// Scroll state (driven externally)
 		this.scrollProgress = 0;
 		this.currentCategory = "";

@@ -141,6 +141,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 		const onHome = window.__currentPage === "home";
 		const cardScroll = window.__heroState.scrollOffset || 0;
+		const lc = three.liquidCards;
+		const dg = three.depthGallery;
 
 		// Only run hero/quote/depth on home page
 		if (onHome) {
@@ -155,8 +157,6 @@ document.addEventListener("DOMContentLoaded", () => {
 		}
 
 		// Update quote + depth gallery based on scroll progress past cards
-		const lc = three.liquidCards;
-		const dg = three.depthGallery;
 		if (onHome && lc && lc.cardMaxScroll > 0) {
 			const pastCards = lc.scroll.current - lc.cardMaxScroll;
 

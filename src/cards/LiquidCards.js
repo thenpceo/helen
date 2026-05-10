@@ -688,7 +688,9 @@ export default class LiquidCards {
 		});
 
 		this.cardMaxScroll = Math.max(0, -minBottom + this.height * 0.54 + this.height);
-		this.maxScroll = this.cardMaxScroll + this.height * 10;
+		// Extra space: quote (2 screens) + depth gallery (7 screens / scrollSpeed)
+		const depthSpeed = window.__depthGalleryScrollSpeed || 0.2;
+		this.maxScroll = this.cardMaxScroll + this.height * 2 + this.height * 7 / depthSpeed + this.height;
 		this.scroll.target = clamp(this.scroll.target, 0, this.maxScroll);
 		this.scroll.current = clamp(this.scroll.current, 0, this.maxScroll);
 	}
