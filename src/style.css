@@ -398,6 +398,174 @@ html, body {
 }
 
 /* ========================
+   PAGE LAYOUT (shared)
+   ======================== */
+
+.page-container {
+	position: fixed;
+	inset: 0;
+	z-index: 10;
+	overflow-y: auto;
+	padding: 80px clamp(24px, 6vw, 80px) 60px;
+}
+
+.page-header {
+	margin-bottom: 40px;
+}
+
+.page-title {
+	font-family: 'Oceanside Typewriter', serif;
+	font-size: clamp(28px, 4vw, 48px);
+	font-weight: 400;
+	letter-spacing: 0.18em;
+	color: var(--ui-color);
+	margin: 0 0 12px;
+}
+
+.page-title-line {
+	width: 60px;
+	height: 1px;
+	background: var(--ui-line);
+}
+
+.page-subtitle {
+	font-family: 'Space Grotesk', sans-serif;
+	font-weight: 300;
+	font-size: clamp(13px, 1.2vw, 16px);
+	color: var(--ui-color-dim);
+	margin: 0 0 32px;
+	letter-spacing: 0.03em;
+}
+
+.page-body {
+	max-width: 900px;
+}
+
+.page-body p {
+	font-family: 'Space Grotesk', sans-serif;
+	font-weight: 300;
+	font-size: clamp(14px, 1.1vw, 16px);
+	line-height: 1.8;
+	color: var(--ui-color);
+	margin: 0 0 18px;
+	letter-spacing: 0.02em;
+}
+
+.page-body h3 {
+	font-family: 'Oceanside Typewriter', serif;
+	font-size: clamp(18px, 2vw, 24px);
+	font-weight: 400;
+	letter-spacing: 0.12em;
+	color: var(--ui-color);
+	margin: 40px 0 16px;
+}
+
+/* ========================
+   ABOUT PAGE
+   ======================== */
+
+.about-body {
+	display: flex;
+	flex-direction: column;
+	gap: 32px;
+}
+
+.about-portrait {
+	width: clamp(200px, 30vw, 320px);
+	height: clamp(200px, 30vw, 320px);
+	overflow: hidden;
+	flex-shrink: 0;
+}
+
+.about-portrait img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.about-email {
+	color: var(--ui-color-bright);
+	text-decoration: underline;
+	text-underline-offset: 3px;
+	cursor: pointer;
+}
+
+/* Contact form */
+.about-contact-form {
+	max-width: 480px;
+	margin-top: 20px;
+}
+
+.about-contact-form form {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.about-contact-form input,
+.about-contact-form textarea {
+	font-family: 'Space Grotesk', sans-serif;
+	font-size: 14px;
+	padding: 10px 14px;
+	background: rgba(255, 255, 255, 0.04);
+	border: 1px solid var(--ui-line);
+	color: var(--ui-color);
+	outline: none;
+	transition: border-color 0.3s ease;
+}
+
+.about-contact-form input:focus,
+.about-contact-form textarea:focus {
+	border-color: var(--ui-color-dim);
+}
+
+.about-contact-form button {
+	font-family: 'Oceanside Typewriter', serif;
+	font-size: 14px;
+	letter-spacing: 0.14em;
+	padding: 12px 24px;
+	background: transparent;
+	border: 1px solid var(--ui-color-dim);
+	color: var(--ui-color);
+	cursor: pointer;
+	transition: background 0.3s ease, color 0.3s ease;
+	align-self: flex-start;
+}
+
+.about-contact-form button:hover {
+	background: var(--ui-color-dim);
+	color: #fff;
+}
+
+/* ========================
+   STORE PAGE
+   ======================== */
+
+.store-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	gap: 24px;
+}
+
+/* ========================
+   BLOG PAGE
+   ======================== */
+
+.blog-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+	gap: 28px;
+}
+
+/* ========================
+   BOOKING PAGE
+   ======================== */
+
+.booking-body {
+	max-width: 700px;
+}
+
+/* ========================
    MOBILE
    ======================== */
 

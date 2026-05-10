@@ -1,11 +1,15 @@
 import Three from "./core/Three";
 import QuoteSection from "./sections/QuoteSection";
+import { initRouter } from "./router";
 import "./style.css";
 
 document.addEventListener("DOMContentLoaded", () => {
 	const container = document.querySelector("#app");
 	const three = new Three(container);
 	three.run();
+
+	// Initialize router
+	initRouter();
 
 	// Elements
 	const hero = document.getElementById("hero");
