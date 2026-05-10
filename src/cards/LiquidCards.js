@@ -488,6 +488,9 @@ export default class LiquidCards {
 		this.hoverNdc = new THREE.Vector2();
 		this.expandedCard = null;
 
+		// Expose for external sections (quote, depth gallery)
+		this.cardMaxScroll = 0; // scroll value where cards end (before extra space)
+
 		this.ready = this.#init();
 	}
 
@@ -654,7 +657,9 @@ export default class LiquidCards {
 			minBottom = Math.min(minBottom, cardY - imageHeight / 2);
 		});
 
-		this.maxScroll = Math.max(0, -minBottom + this.height * 0.54 + this.height);
+		this.cardMaxScroll = Math.max(0, -minBottom + this.height * 0.54 + this.height);
+		// Add extra scroll space for quote section (1.5 screens)
+		this.maxScroll = this.cardMaxScroll + this.height * 1.5;
 		this.scroll.target = clamp(this.scroll.target, 0, this.maxScroll);
 		this.scroll.current = clamp(this.scroll.current, 0, this.maxScroll);
 	}
@@ -682,7 +687,8 @@ export default class LiquidCards {
 			minBottom = Math.min(minBottom, y - imageHeight / 2);
 		});
 
-		this.maxScroll = Math.max(0, -minBottom + this.height * 0.54 + this.height);
+		this.cardMaxScroll = Math.max(0, -minBottom + this.height * 0.54 + this.height);
+		this.maxScroll = this.cardMaxScroll + this.height * 1.5;
 		this.scroll.target = clamp(this.scroll.target, 0, this.maxScroll);
 		this.scroll.current = clamp(this.scroll.current, 0, this.maxScroll);
 	}

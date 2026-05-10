@@ -1,4 +1,5 @@
 import Three from "./core/Three";
+import QuoteSection from "./sections/QuoteSection";
 import "./style.css";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -126,6 +127,9 @@ document.addEventListener("DOMContentLoaded", () => {
 		}
 	}
 
+	// Quote section
+	const quoteSection = new QuoteSection();
+
 	// Animation loop
 	function animate() {
 		portraitDriftX += (portraitDriftTargetX - portraitDriftX) * 0.08;
@@ -133,6 +137,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 		const cardScroll = window.__heroState.scrollOffset || 0;
 		updateHero(cardScroll);
+
+		// Update quote section based on how far past the cards we've scrolled
+		const lc = three.liquidCards;
+		if (lc && lc.cardMaxScroll > 0) {
+			const pastCards = lc.scroll.current - lc.cardMaxScroll;
+			const quoteProgress = Math.max(0, pastCards / (lc.height * 1.2));
+			quoteSection.update(quoteProgress);
+		}
 
 		requestAnimationFrame(animate);
 	}

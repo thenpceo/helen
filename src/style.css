@@ -330,6 +330,42 @@ html, body {
 }
 
 /* ========================
+   QUOTE SECTION
+   ======================== */
+
+.quote-section {
+	position: fixed;
+	inset: 0;
+	z-index: 10;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	pointer-events: none;
+	opacity: 0;
+	visibility: hidden;
+}
+
+.quote-inner {
+	max-width: 750px;
+	padding: 0 clamp(24px, 6vw, 80px);
+	text-align: center;
+}
+
+.quote-text {
+	font-family: 'Oceanside Typewriter', serif;
+	font-size: clamp(22px, 3.2vw, 40px);
+	line-height: 1.7;
+	color: var(--ui-color);
+	letter-spacing: 0.03em;
+	margin: 0;
+}
+
+.quote-letter {
+	opacity: 0;
+	transition: opacity 0.08s ease;
+}
+
+/* ========================
    MOBILE
    ======================== */
 
