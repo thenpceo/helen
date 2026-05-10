@@ -73,14 +73,14 @@ export default class DepthGallery {
 
 		// Tunable settings
 		this.settings = {
-			planeScale: 0.55,
-			planeGap: 12,
+			planeScale: 1.32,
+			planeGap: 7,
 			fadeRange: 2.5,
 			fadeSmoothing: 0.08,
 			parallaxX: 0.12,
 			parallaxY: 0.06,
 			cameraOffset: 8,
-			scrollSpeed: 1.0,
+			scrollSpeed: 0.2,
 		};
 
 		// Scroll state (driven externally)
