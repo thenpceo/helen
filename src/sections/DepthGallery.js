@@ -69,11 +69,21 @@ export default class DepthGallery {
 
 		this.planes = [];
 		this.planeData = buildPlaneData();
-		this.planeGap = 5;
 		this.active = false;
 
+		// Tunable settings
+		this.settings = {
+			planeScale: 0.55,
+			planeGap: 12,
+			fadeRange: 2.5,
+			fadeSmoothing: 0.08,
+			parallaxX: 0.12,
+			parallaxY: 0.06,
+			cameraOffset: 8,
+		};
+
 		// Scroll state (driven externally)
-		this.scrollProgress = 0; // 0 = start, 1 = end
+		this.scrollProgress = 0;
 		this.currentCategory = "";
 
 		// Category label element
@@ -127,7 +137,8 @@ export default class DepthGallery {
 	}
 
 	#createPlanes() {
-		const geo = new THREE.PlaneGeometry(3, 3);
+		const geo = new THREE.PlaneGeometry(1, 1);
+		const s = this.settings;
 
 		this.planeData.forEach((data, index) => {
 			const tex = this.textures.get(data.image);
@@ -145,21 +156,32 @@ export default class DepthGallery {
 			});
 
 			const mesh = new THREE.Mesh(geo, mat);
-			mesh.scale.set(aspect, 1, 1);
-			mesh.position.set(data.x, data.y, -index * this.planeGap);
-			mesh.userData = { category: data.category, baseX: data.x, baseY: data.y };
+			mesh.scale.set(s.planeScale * aspect, s.planeScale, 1);
+			mesh.position.set(data.x * 0.5, data.y * 0.3, -index * s.planeGap);
+			mesh.userData = { category: data.category, baseX: data.x * 0.5, baseY: data.y * 0.3, aspect };
 
 			this.scene.add(mesh);
 			this.planes.push(mesh);
 		});
 	}
 
+	relayout() {
+		const s = this.settings;
+		this.planes.forEach((plane, index) => {
+			const aspect = plane.userData.aspect || 1;
+			plane.scale.set(s.planeScale * aspect, s.planeScale, 1);
+			plane.position.z = -index * s.planeGap;
+		});
+		this.#positionCamera();
+	}
+
 	#positionCamera() {
 		if (!this.planes.length) return;
+		const s = this.settings;
 		const firstZ = this.planes[0].position.z;
-		this.cameraStartZ = firstZ + 5;
+		this.cameraStartZ = firstZ + s.cameraOffset;
 		const lastZ = this.planes[this.planes.length - 1].position.z;
-		this.cameraEndZ = lastZ + 3;
+		this.cameraEndZ = lastZ + s.cameraOffset * 0.5;
 		this.camera.position.z = this.cameraStartZ;
 	}
 
@@ -190,20 +212,22 @@ export default class DepthGallery {
 		let closestIndex = 0;
 		let closestDist = Infinity;
 
+		const s = this.settings;
+
 		this.planes.forEach((plane, index) => {
 			const planeZ = plane.position.z;
 			const dist = Math.abs(cameraZ - planeZ);
 
-			// Fade: visible when camera is within 1 planeGap
-			const normalizedDist = dist / this.planeGap;
-			const targetOpacity = Math.max(0, 1 - normalizedDist);
-			plane.material.opacity += (targetOpacity - plane.material.opacity) * 0.12;
+			// Fade: visible when camera is within fadeRange * planeGap
+			const normalizedDist = dist / (s.planeGap * s.fadeRange);
+			const targetOpacity = clamp(1 - normalizedDist, 0, 1);
+			plane.material.opacity += (targetOpacity - plane.material.opacity) * s.fadeSmoothing;
 
 			// Parallax — stronger for visible planes
 			const parallaxStrength = plane.material.opacity;
-			const depthFactor = 1 + index * 0.03;
-			plane.position.x = plane.userData.baseX + this.pointerX * 0.15 * parallaxStrength * depthFactor;
-			plane.position.y = plane.userData.baseY + this.pointerY * 0.08 * parallaxStrength * depthFactor;
+			const depthFactor = 1 + index * 0.02;
+			plane.position.x = plane.userData.baseX + this.pointerX * s.parallaxX * parallaxStrength * depthFactor;
+			plane.position.y = plane.userData.baseY + this.pointerY * s.parallaxY * parallaxStrength * depthFactor;
 
 			// Track closest
 			if (dist < closestDist) {

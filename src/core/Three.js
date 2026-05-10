@@ -432,6 +432,21 @@ class Three {
 			alert("Settings copied to clipboard!");
 		}}, "copySettings").name("📋 Copy Current Settings");
 
+		// ========== DEPTH GALLERY ==========
+		if (this.depthGallery) {
+			const dgFolder = this.gui.addFolder("Depth Gallery");
+			const dgs = this.depthGallery.settings;
+			const relayout = () => this.depthGallery.relayout();
+			dgFolder.add(dgs, "planeScale", 0.1, 2.0, 0.01).name("Plane Scale").onChange(relayout);
+			dgFolder.add(dgs, "planeGap", 2, 30, 0.5).name("Plane Gap").onChange(relayout);
+			dgFolder.add(dgs, "fadeRange", 0.5, 5.0, 0.1).name("Fade Range");
+			dgFolder.add(dgs, "fadeSmoothing", 0.01, 0.3, 0.01).name("Fade Smoothing");
+			dgFolder.add(dgs, "parallaxX", 0, 0.5, 0.01).name("Parallax X");
+			dgFolder.add(dgs, "parallaxY", 0, 0.3, 0.01).name("Parallax Y");
+			dgFolder.add(dgs, "cameraOffset", 2, 20, 0.5).name("Camera Offset").onChange(relayout);
+			dgFolder.close();
+		}
+
 		this.gui.add({ resetSettings: () => {
 			localStorage.removeItem(STORAGE_KEY);
 			location.reload();
