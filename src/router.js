@@ -9,6 +9,9 @@ const simpleRoutes = {
 	"#book": "booking",
 };
 
+// Expose current page globally so WebGL systems can check it
+window.__currentPage = "home";
+
 export function initRouter() {
 	const pages = document.querySelectorAll("[data-page]");
 	const blogContainer = document.getElementById("blog-grid");
@@ -17,12 +20,13 @@ export function initRouter() {
 	function navigate() {
 		const hash = window.location.hash || "";
 
-		// Check for sub-routes
 		const blogMatch = hash.match(/^#blog\/(.+)$/);
 		const storeMatch = hash.match(/^#store\/(.+)$/);
 		const active = blogMatch ? "blog"
 			: storeMatch ? "store"
 			: (simpleRoutes[hash] || "home");
+
+		window.__currentPage = active;
 
 		pages.forEach((p) => {
 			const isActive = p.dataset.page === active;
@@ -30,7 +34,7 @@ export function initRouter() {
 			p.setAttribute("aria-hidden", isActive ? "false" : "true");
 		});
 
-		// Render blog content
+		// Blog
 		if (active === "blog" && blogContainer) {
 			if (blogMatch) {
 				renderBlogPost(blogContainer, blogMatch[1]);
@@ -40,7 +44,7 @@ export function initRouter() {
 			}
 		}
 
-		// Render store content
+		// Store
 		if (active === "store" && storeContainer) {
 			if (storeMatch) {
 				renderStoreProduct(storeContainer, storeMatch[1]);
@@ -50,7 +54,6 @@ export function initRouter() {
 			}
 		}
 
-		// Reset title for simple pages
 		if (active === "home") document.title = "Helen V Photography";
 		if (active === "about") document.title = "About — Helen V Photography";
 		if (active === "booking") document.title = "Book a Session — Helen V Photography";

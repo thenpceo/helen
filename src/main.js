@@ -139,13 +139,25 @@ document.addEventListener("DOMContentLoaded", () => {
 		portraitDriftX += (portraitDriftTargetX - portraitDriftX) * 0.08;
 		portraitDriftY += (portraitDriftTargetY - portraitDriftY) * 0.08;
 
+		const onHome = window.__currentPage === "home";
 		const cardScroll = window.__heroState.scrollOffset || 0;
-		updateHero(cardScroll);
+
+		// Only run hero/quote/depth on home page
+		if (onHome) {
+			updateHero(cardScroll);
+		} else {
+			// On other pages: hide hero, show nav bar, hide quote
+			hero.style.visibility = "hidden";
+			navBar.classList.add("visible");
+			navBar.style.opacity = 1;
+			quoteSection.update(0);
+			if (dg) dg.setActive(false);
+		}
 
 		// Update quote + depth gallery based on scroll progress past cards
 		const lc = three.liquidCards;
 		const dg = three.depthGallery;
-		if (lc && lc.cardMaxScroll > 0) {
+		if (onHome && lc && lc.cardMaxScroll > 0) {
 			const pastCards = lc.scroll.current - lc.cardMaxScroll;
 
 			// Quote: appears in first 1.5 screens past cards

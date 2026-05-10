@@ -694,7 +694,11 @@ export default class LiquidCards {
 	}
 
 	#bindInput() {
+		// Only capture scroll on home page
+		const isHome = () => window.__currentPage === "home";
+
 		window.addEventListener("wheel", (e) => {
+			if (!isHome()) return;
 			if (e.target instanceof Element && e.target.closest(".lil-gui")) return;
 			e.preventDefault();
 			this.scroll.target = clamp(
@@ -705,11 +709,13 @@ export default class LiquidCards {
 
 		let touchY = 0;
 		window.addEventListener("touchstart", (e) => {
+			if (!isHome()) return;
 			if (!e.touches.length) return;
 			touchY = e.touches[0].clientY;
 		}, { passive: true });
 
 		window.addEventListener("touchmove", (e) => {
+			if (!isHome()) return;
 			if (!e.touches.length) return;
 			const t = e.touches[0];
 			const delta = touchY - t.clientY;
@@ -721,6 +727,7 @@ export default class LiquidCards {
 		}, { passive: true });
 
 		window.addEventListener("keydown", (e) => {
+			if (!isHome()) return;
 			const step = this.height * 0.6;
 			if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") {
 				e.preventDefault();
@@ -800,6 +807,11 @@ export default class LiquidCards {
 	}
 
 	animate(dt) {
+		// Hide cards on non-home pages
+		const onHome = window.__currentPage === "home";
+		this.cardsRoot.visible = onHome;
+		if (!onHome) return;
+
 		const s = this.settings;
 		const time = performance.now() / 1000;
 

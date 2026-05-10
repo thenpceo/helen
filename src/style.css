@@ -401,140 +401,236 @@ html, body {
    PAGE LAYOUT (shared)
    ======================== */
 
-.page-container {
+.page-scroll {
 	position: fixed;
 	inset: 0;
 	z-index: 10;
 	overflow-y: auto;
-	padding: 80px clamp(24px, 6vw, 80px) 60px;
+	overflow-x: hidden;
+	-webkit-overflow-scrolling: touch;
 }
 
-.page-header {
+.page-section {
+	padding: 0 clamp(32px, 8vw, 120px);
+	margin-bottom: clamp(48px, 8vh, 80px);
+}
+
+.page-section:first-child {
+	padding-top: clamp(100px, 14vh, 160px);
+}
+
+.page-eyebrow {
+	font-family: 'Space Grotesk', sans-serif;
+	font-size: 11px;
+	font-weight: 400;
+	letter-spacing: 0.35em;
+	text-transform: uppercase;
+	color: var(--ui-color-dim);
+	display: block;
+	margin-bottom: 12px;
+}
+
+.page-heading-xl {
+	font-family: 'Oceanside Typewriter', serif;
+	font-size: clamp(36px, 6vw, 72px);
+	font-weight: 400;
+	letter-spacing: 0.12em;
+	color: var(--ui-color);
+	margin: 0 0 16px;
+	line-height: 1.1;
+}
+
+.page-heading-md {
+	font-family: 'Oceanside Typewriter', serif;
+	font-size: clamp(22px, 3vw, 36px);
+	font-weight: 400;
+	letter-spacing: 0.1em;
+	color: var(--ui-color);
+	margin: 0 0 16px;
+}
+
+.page-heading-line {
+	width: 48px;
+	height: 1px;
+	background: var(--ui-line);
+	margin-bottom: 28px;
+}
+
+.page-body-text {
+	font-family: 'Space Grotesk', sans-serif;
+	font-weight: 300;
+	font-size: clamp(14px, 1.15vw, 17px);
+	line-height: 1.85;
+	color: var(--ui-color);
+	margin: 0 0 20px;
+	letter-spacing: 0.015em;
+	max-width: 620px;
+}
+
+.page-intro {
+	max-width: 520px;
 	margin-bottom: 40px;
 }
 
-.page-title {
-	font-family: 'Oceanside Typewriter', serif;
-	font-size: clamp(28px, 4vw, 48px);
-	font-weight: 400;
-	letter-spacing: 0.18em;
-	color: var(--ui-color);
-	margin: 0 0 12px;
+.page-narrow {
+	max-width: 580px;
 }
 
-.page-title-line {
-	width: 60px;
+/* Page footer */
+.page-footer {
+	padding: clamp(40px, 6vh, 80px) clamp(32px, 8vw, 120px);
+	display: flex;
+	align-items: center;
+	gap: 20px;
+}
+
+.page-footer-line {
+	flex: 1;
 	height: 1px;
 	background: var(--ui-line);
 }
 
-.page-subtitle {
+.page-footer-text {
 	font-family: 'Space Grotesk', sans-serif;
+	font-size: 11px;
 	font-weight: 300;
-	font-size: clamp(13px, 1.2vw, 16px);
+	letter-spacing: 0.2em;
 	color: var(--ui-color-dim);
-	margin: 0 0 32px;
-	letter-spacing: 0.03em;
-}
-
-.page-body {
-	max-width: 900px;
-}
-
-.page-body p {
-	font-family: 'Space Grotesk', sans-serif;
-	font-weight: 300;
-	font-size: clamp(14px, 1.1vw, 16px);
-	line-height: 1.8;
-	color: var(--ui-color);
-	margin: 0 0 18px;
-	letter-spacing: 0.02em;
-}
-
-.page-body h3 {
-	font-family: 'Oceanside Typewriter', serif;
-	font-size: clamp(18px, 2vw, 24px);
-	font-weight: 400;
-	letter-spacing: 0.12em;
-	color: var(--ui-color);
-	margin: 40px 0 16px;
+	white-space: nowrap;
 }
 
 /* ========================
    ABOUT PAGE
    ======================== */
 
-.about-body {
-	display: flex;
-	flex-direction: column;
-	gap: 32px;
+.about-hero-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: clamp(32px, 5vw, 80px);
+	align-items: center;
 }
 
-.about-portrait {
-	width: clamp(200px, 30vw, 320px);
-	height: clamp(200px, 30vw, 320px);
+.about-hero-image {
+	width: 100%;
+	max-width: 400px;
+	aspect-ratio: 1;
 	overflow: hidden;
-	flex-shrink: 0;
 }
 
-.about-portrait img {
+.about-hero-image img {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
+	filter: grayscale(0.1) contrast(1.02);
 }
 
-.about-email {
-	color: var(--ui-color-bright);
-	text-decoration: underline;
-	text-underline-offset: 3px;
+.about-lead {
+	font-family: 'Space Grotesk', sans-serif;
+	font-weight: 300;
+	font-size: clamp(16px, 1.4vw, 20px);
+	line-height: 1.8;
+	color: var(--ui-color);
+	letter-spacing: 0.02em;
+}
+
+.about-email-link {
+	font-family: 'Space Grotesk', sans-serif;
+	font-size: 15px;
+	font-weight: 400;
+	color: var(--ui-color);
+	text-decoration: none;
+	border-bottom: 1px solid var(--ui-line);
+	padding-bottom: 2px;
 	cursor: pointer;
+	transition: border-color 0.3s ease;
+	display: inline-block;
+	margin-bottom: 36px;
+}
+
+.about-email-link:hover {
+	border-color: var(--ui-color);
 }
 
 /* Contact form */
-.about-contact-form {
-	max-width: 480px;
-	margin-top: 20px;
-}
-
-.about-contact-form form {
+.contact-form {
 	display: flex;
 	flex-direction: column;
-	gap: 12px;
+	gap: 14px;
+	max-width: 520px;
+	margin-top: 8px;
 }
 
-.about-contact-form input,
-.about-contact-form textarea {
+.form-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 14px;
+}
+
+.contact-form input,
+.contact-form textarea {
 	font-family: 'Space Grotesk', sans-serif;
 	font-size: 14px;
-	padding: 10px 14px;
-	background: rgba(255, 255, 255, 0.04);
+	font-weight: 300;
+	padding: 14px 18px;
+	background: rgba(255, 255, 255, 0.03);
 	border: 1px solid var(--ui-line);
 	color: var(--ui-color);
 	outline: none;
-	transition: border-color 0.3s ease;
+	transition: border-color 0.3s ease, background 0.3s ease;
+	letter-spacing: 0.02em;
 }
 
-.about-contact-form input:focus,
-.about-contact-form textarea:focus {
+.contact-form input::placeholder,
+.contact-form textarea::placeholder {
+	color: var(--ui-color-dim);
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
 	border-color: var(--ui-color-dim);
+	background: rgba(255, 255, 255, 0.05);
 }
 
-.about-contact-form button {
+.contact-form button {
 	font-family: 'Oceanside Typewriter', serif;
-	font-size: 14px;
-	letter-spacing: 0.14em;
-	padding: 12px 24px;
+	font-size: 13px;
+	letter-spacing: 0.18em;
+	padding: 16px 36px;
 	background: transparent;
 	border: 1px solid var(--ui-color-dim);
 	color: var(--ui-color);
 	cursor: pointer;
 	transition: background 0.3s ease, color 0.3s ease;
 	align-self: flex-start;
+	margin-top: 8px;
 }
 
-.about-contact-form button:hover {
-	background: var(--ui-color-dim);
-	color: #fff;
+.contact-form button:hover {
+	background: var(--ui-color);
+	color: rgba(255, 255, 255, 0.9);
+}
+
+/* Cal.com container */
+.cal-container {
+	width: 100%;
+	max-width: 700px;
+	height: 650px;
+	overflow: auto;
+}
+
+@media (max-width: 760px) {
+	.about-hero-grid {
+		grid-template-columns: 1fr;
+		gap: 24px;
+	}
+
+	.about-hero-image {
+		max-width: 260px;
+	}
+
+	.form-row {
+		grid-template-columns: 1fr;
+	}
 }
 
 /* ========================
@@ -554,49 +650,62 @@ html, body {
 .blog-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-	gap: 28px;
+	gap: 32px;
+	max-width: 1000px;
+}
+
+.blog-post {
+	max-width: 700px;
 }
 
 /* ========================
    STORE
    ======================== */
 
+.store-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	gap: 32px;
+}
+
 .store-card {
 	display: block;
 	text-decoration: none;
 	cursor: pointer;
-	transition: transform 0.3s ease;
+	transition: transform 0.35s ease;
 }
 
 .store-card:hover {
-	transform: translateY(-4px);
+	transform: translateY(-6px);
 }
 
 .store-card-image {
 	width: 100%;
 	aspect-ratio: 4 / 3;
 	overflow: hidden;
-	margin-bottom: 12px;
+	margin-bottom: 16px;
 }
 
 .store-card-image img {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
-	transition: filter 0.4s ease;
+	filter: grayscale(0.05);
+	transition: filter 0.4s ease, transform 0.6s ease;
 }
 
 .store-card:hover .store-card-image img {
-	filter: contrast(1.05) saturate(1.1);
+	filter: grayscale(0) contrast(1.04) saturate(1.08);
+	transform: scale(1.03);
 }
 
 .store-card-title {
 	font-family: 'Oceanside Typewriter', serif;
-	font-size: 18px;
+	font-size: clamp(16px, 1.4vw, 20px);
 	font-weight: 400;
 	letter-spacing: 0.08em;
 	color: var(--ui-color);
-	margin: 0 0 4px;
+	margin: 0 0 6px;
 }
 
 .store-card-price {
@@ -608,11 +717,15 @@ html, body {
 }
 
 /* Product detail */
+.store-product {
+	max-width: 1000px;
+}
+
 .store-product-layout {
 	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 48px;
-	margin-top: 24px;
+	grid-template-columns: 1.2fr 1fr;
+	gap: clamp(32px, 5vw, 64px);
+	margin-top: 32px;
 }
 
 .store-product-image {
@@ -627,20 +740,20 @@ html, body {
 
 .store-product-title {
 	font-family: 'Oceanside Typewriter', serif;
-	font-size: clamp(22px, 2.5vw, 32px);
+	font-size: clamp(24px, 3vw, 36px);
 	font-weight: 400;
 	letter-spacing: 0.1em;
 	color: var(--ui-color);
-	margin: 0 0 12px;
+	margin: 0 0 14px;
 }
 
 .store-product-desc {
 	font-family: 'Space Grotesk', sans-serif;
 	font-weight: 300;
-	font-size: 14px;
-	line-height: 1.7;
+	font-size: 15px;
+	line-height: 1.75;
 	color: var(--ui-color-dim);
-	margin: 0 0 28px;
+	margin: 0 0 32px;
 }
 
 .store-product-options {
@@ -653,55 +766,61 @@ html, body {
 	font-family: 'Space Grotesk', sans-serif;
 	font-size: 11px;
 	font-weight: 400;
-	letter-spacing: 0.2em;
+	letter-spacing: 0.25em;
 	text-transform: uppercase;
 	color: var(--ui-color-dim);
-	margin-top: 8px;
+	margin-top: 10px;
 }
 
 .store-select {
 	font-family: 'Space Grotesk', sans-serif;
 	font-size: 14px;
-	padding: 10px 14px;
-	background: rgba(255, 255, 255, 0.04);
+	font-weight: 300;
+	padding: 12px 16px;
+	background: rgba(255, 255, 255, 0.03);
 	border: 1px solid var(--ui-line);
 	color: var(--ui-color);
 	cursor: pointer;
 	outline: none;
+	transition: border-color 0.3s ease;
+}
+
+.store-select:focus {
+	border-color: var(--ui-color-dim);
 }
 
 .store-product-total {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-top: 16px;
-	padding-top: 16px;
+	margin-top: 20px;
+	padding-top: 20px;
 	border-top: 1px solid var(--ui-line);
 }
 
 .store-total-price {
 	font-family: 'Oceanside Typewriter', serif;
-	font-size: 24px;
+	font-size: 28px;
 	letter-spacing: 0.08em;
 	color: var(--ui-color);
 }
 
 .store-order-btn {
 	font-family: 'Oceanside Typewriter', serif;
-	font-size: 14px;
-	letter-spacing: 0.14em;
-	padding: 14px 32px;
+	font-size: 13px;
+	letter-spacing: 0.18em;
+	padding: 16px 40px;
 	background: transparent;
 	border: 1px solid var(--ui-color-dim);
 	color: var(--ui-color);
 	cursor: pointer;
 	transition: background 0.3s ease, color 0.3s ease;
-	margin-top: 12px;
+	margin-top: 14px;
 }
 
 .store-order-btn:hover {
-	background: var(--ui-color-dim);
-	color: #fff;
+	background: var(--ui-color);
+	color: rgba(255, 255, 255, 0.9);
 }
 
 .store-fulfillment {
@@ -709,7 +828,7 @@ html, body {
 	font-size: 11px;
 	font-weight: 300;
 	color: var(--ui-color-dim);
-	margin-top: 8px;
+	margin-top: 10px;
 	letter-spacing: 0.04em;
 }
 

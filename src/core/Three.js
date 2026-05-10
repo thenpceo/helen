@@ -479,7 +479,7 @@ class Three {
 		}
 
 		// 2b. Render depth gallery into the same output target (with postprocessing)
-		if (this.depthGallery?.active) {
+		if (this.depthGallery?.active && window.__currentPage === "home") {
 			this.renderer.setRenderTarget(this.watercolorOverlay.outputTarget);
 			this.renderer.autoClear = false;
 			this.renderer.clearDepth();
