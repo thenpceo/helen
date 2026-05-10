@@ -177,6 +177,7 @@ const fragmentShader = /* glsl */ `
 	uniform float uRippleBrighten;
 	uniform float uBackWashout;
 	uniform float uHoverBoost;
+	uniform float uExpanded;
 
 	varying vec2 vUv;
 	varying float vBend;
@@ -197,16 +198,21 @@ const fragmentShader = /* glsl */ `
 	void main() {
 		vec2 coverUv = coverTextureUv(vUv, uImageSize, uPlaneSize);
 		vec4 color = texture2D(uTexture, coverUv);
+
+		// When expanded, show raw image — no processing at all
+		if (uExpanded > 0.5) {
+			gl_FragColor = color;
+			return;
+		}
+
 		float lift = vBend * uBendBrighten + abs(vRipple) * uRippleBrighten;
 		color.rgb += lift;
 		color.rgb = mix(color.rgb, vec3(1.0), vBend * uBackWashout);
 
 		// Hover boost: increase saturation and contrast
 		if (uHoverBoost > 0.001) {
-			// Saturation boost
 			float lum = dot(color.rgb, vec3(0.299, 0.587, 0.114));
 			color.rgb = mix(vec3(lum), color.rgb, 1.0 + uHoverBoost * 0.15);
-			// Contrast boost
 			color.rgb = (color.rgb - 0.5) * (1.0 + uHoverBoost * 0.08) + 0.5;
 		}
 
@@ -250,6 +256,7 @@ function createCardMaterial(texture, imageSize, settings, bendPoint, pointer, op
 			uBackWashout: { value: settings.backWashout },
 			uOpacity: { value: opacity },
 			uHoverBoost: { value: 0 },
+			uExpanded: { value: 0 },
 		},
 		vertexShader,
 		fragmentShader,
@@ -416,6 +423,9 @@ class LiquidCard {
 
 		// Bring to front
 		this.group.renderOrder = eased > 0.01 ? 100 : 0;
+
+		// Raw image display when expanded
+		this.imageMaterial.uniforms.uExpanded.value = eased;
 
 		// Suppress ALL deformation when expanded
 		const suppress = 1 - eased;
