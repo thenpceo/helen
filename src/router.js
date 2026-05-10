@@ -1,4 +1,5 @@
 import { renderBlogIndex, renderBlogPost } from "./blog/renderer";
+import { renderStoreIndex, renderStoreProduct } from "./store/renderer";
 
 const simpleRoutes = {
 	"": "home",
@@ -11,13 +12,17 @@ const simpleRoutes = {
 export function initRouter() {
 	const pages = document.querySelectorAll("[data-page]");
 	const blogContainer = document.getElementById("blog-grid");
+	const storeContainer = document.getElementById("store-grid");
 
 	function navigate() {
 		const hash = window.location.hash || "";
 
-		// Check for blog post route: #blog/slug
+		// Check for sub-routes
 		const blogMatch = hash.match(/^#blog\/(.+)$/);
-		const active = blogMatch ? "blog" : (simpleRoutes[hash] || "home");
+		const storeMatch = hash.match(/^#store\/(.+)$/);
+		const active = blogMatch ? "blog"
+			: storeMatch ? "store"
+			: (simpleRoutes[hash] || "home");
 
 		pages.forEach((p) => {
 			const isActive = p.dataset.page === active;
@@ -35,10 +40,20 @@ export function initRouter() {
 			}
 		}
 
-		// Reset title for non-blog pages
-		if (active !== "blog") {
-			document.title = "Helen V Photography";
+		// Render store content
+		if (active === "store" && storeContainer) {
+			if (storeMatch) {
+				renderStoreProduct(storeContainer, storeMatch[1]);
+			} else {
+				renderStoreIndex(storeContainer);
+				document.title = "Store — Helen V Photography";
+			}
 		}
+
+		// Reset title for simple pages
+		if (active === "home") document.title = "Helen V Photography";
+		if (active === "about") document.title = "About — Helen V Photography";
+		if (active === "booking") document.title = "Book a Session — Helen V Photography";
 	}
 
 	window.addEventListener("hashchange", navigate);
