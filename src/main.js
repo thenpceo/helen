@@ -138,12 +138,32 @@ document.addEventListener("DOMContentLoaded", () => {
 		const cardScroll = window.__heroState.scrollOffset || 0;
 		updateHero(cardScroll);
 
-		// Update quote section based on how far past the cards we've scrolled
+		// Update quote + depth gallery based on scroll progress past cards
 		const lc = three.liquidCards;
+		const dg = three.depthGallery;
 		if (lc && lc.cardMaxScroll > 0) {
 			const pastCards = lc.scroll.current - lc.cardMaxScroll;
+
+			// Quote: appears in first 1.5 screens past cards
 			const quoteProgress = Math.max(0, pastCards / (lc.height * 1.2));
 			quoteSection.update(quoteProgress);
+
+			// Depth gallery: starts after quote (1.5 screens), spans 8 screens
+			const depthStart = lc.height * 2;
+			const depthSpan = lc.height * 7;
+			const depthProgress = Math.max(0, (pastCards - depthStart) / depthSpan);
+
+			if (dg) {
+				const depthActive = depthProgress > 0 && depthProgress < 1;
+				dg.setActive(depthActive);
+				if (depthActive) {
+					dg.update(depthProgress);
+				}
+				// Fade out quote when depth gallery is active
+				if (depthProgress > 0.05) {
+					quoteSection.update(Math.max(0, 1 - depthProgress * 5));
+				}
+			}
 		}
 
 		requestAnimationFrame(animate);

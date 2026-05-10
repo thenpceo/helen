@@ -5,6 +5,7 @@ import Scene from "../scenes/Scene";
 import Postprocessing from "./Postprocessing";
 import WatercolorOverlay from "./WatercolorOverlay";
 import LiquidCards from "../cards/LiquidCards";
+import DepthGallery from "../sections/DepthGallery";
 
 const STORAGE_KEY = "relief-settings";
 
@@ -29,6 +30,7 @@ class Three {
 		this.postprocessing = null;
 		this.watercolorOverlay = null;
 		this.liquidCards = null;
+		this.depthGallery = null;
 		this.clock = new THREE.Clock();
 		this.gui = null;
 		this.renderer = null;
@@ -61,6 +63,9 @@ class Three {
 		// Create liquid cards
 		this.liquidCards = new LiquidCards(this.context.renderer);
 
+		// Create depth gallery
+		this.depthGallery = new DepthGallery(this.context.renderer);
+
 		// Wire up pointer events to drive both relief AND cards
 		this.#addPointerListeners();
 
@@ -71,9 +76,12 @@ class Three {
 		this.#applySettings(loadSettings());
 		this.#setupGUI();
 
-		// Cards load in background — GUI already has settings reference
+		// Cards + depth gallery load in background
 		this.liquidCards.ready.catch((e) => {
 			console.warn("Some card textures failed to load:", e);
+		});
+		this.depthGallery.ready.catch((e) => {
+			console.warn("Depth gallery textures failed to load:", e);
 		});
 	}
 
@@ -470,7 +478,17 @@ class Three {
 			this.renderer.setRenderTarget(null);
 		}
 
-		// 3. Postprocess everything (relief + cards) to screen
+		// 2b. Render depth gallery into the same output target (with postprocessing)
+		if (this.depthGallery?.active) {
+			this.renderer.setRenderTarget(this.watercolorOverlay.outputTarget);
+			this.renderer.autoClear = false;
+			this.renderer.clearDepth();
+			this.renderer.render(this.depthGallery.scene, this.depthGallery.camera);
+			this.renderer.autoClear = true;
+			this.renderer.setRenderTarget(null);
+		}
+
+		// 3. Postprocess everything (relief + cards + depth gallery) to screen
 		this.postprocessing.render(delta);
 
 		// 4. Render expanded card directly to screen — clean, no postprocessing
@@ -515,6 +533,7 @@ class Three {
 		this.watercolorOverlay && this.watercolorOverlay.resize(width, height);
 		this.postprocessing && this.postprocessing.resize(width, height);
 		this.liquidCards && this.liquidCards.resize(width, height);
+		this.depthGallery && this.depthGallery.resize(width, height);
 	}
 }
 

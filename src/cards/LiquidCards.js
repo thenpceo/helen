@@ -658,8 +658,8 @@ export default class LiquidCards {
 		});
 
 		this.cardMaxScroll = Math.max(0, -minBottom + this.height * 0.54 + this.height);
-		// Add extra scroll space for quote section (1.5 screens)
-		this.maxScroll = this.cardMaxScroll + this.height * 1.5;
+		// Extra scroll space: quote (1.5 screens) + depth gallery (8 screens)
+		this.maxScroll = this.cardMaxScroll + this.height * 10;
 		this.scroll.target = clamp(this.scroll.target, 0, this.maxScroll);
 		this.scroll.current = clamp(this.scroll.current, 0, this.maxScroll);
 	}
@@ -688,7 +688,7 @@ export default class LiquidCards {
 		});
 
 		this.cardMaxScroll = Math.max(0, -minBottom + this.height * 0.54 + this.height);
-		this.maxScroll = this.cardMaxScroll + this.height * 1.5;
+		this.maxScroll = this.cardMaxScroll + this.height * 10;
 		this.scroll.target = clamp(this.scroll.target, 0, this.maxScroll);
 		this.scroll.current = clamp(this.scroll.current, 0, this.maxScroll);
 	}

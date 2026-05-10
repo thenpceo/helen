@@ -330,6 +330,38 @@ html, body {
 }
 
 /* ========================
+   DEPTH GALLERY CATEGORY LABEL
+   ======================== */
+
+.depth-category-label {
+	position: fixed;
+	right: clamp(24px, 5vw, 64px);
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 12;
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	pointer-events: none;
+	opacity: 0;
+	transition: opacity 0.5s ease;
+}
+
+.depth-category-line {
+	width: 40px;
+	height: 1px;
+	background: var(--ui-color-dim);
+}
+
+.depth-category-text {
+	font-family: 'Oceanside Typewriter', serif;
+	font-size: clamp(14px, 1.6vw, 20px);
+	letter-spacing: 0.18em;
+	color: var(--ui-color);
+	white-space: nowrap;
+}
+
+/* ========================
    QUOTE SECTION
    ======================== */
 
