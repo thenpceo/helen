@@ -158,6 +158,7 @@ class Three {
 				noiseOpacity: pp.noise.blendMode.opacity.value,
 			},
 			cards: { ...this.liquidCards.settings },
+			depthGallery: this.depthGallery ? { ...this.depthGallery.settings } : {},
 		};
 	}
 
@@ -444,6 +445,7 @@ class Three {
 			dgFolder.add(dgs, "parallaxX", 0, 0.5, 0.01).name("Parallax X");
 			dgFolder.add(dgs, "parallaxY", 0, 0.3, 0.01).name("Parallax Y");
 			dgFolder.add(dgs, "cameraOffset", 2, 20, 0.5).name("Camera Offset").onChange(relayout);
+			dgFolder.add(dgs, "scrollSpeed", 0.2, 3.0, 0.05).name("Scroll Speed");
 			dgFolder.close();
 		}
 

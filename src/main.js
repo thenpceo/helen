@@ -164,9 +164,10 @@ document.addEventListener("DOMContentLoaded", () => {
 			const quoteProgress = Math.max(0, pastCards / (lc.height * 1.2));
 			quoteSection.update(quoteProgress);
 
-			// Depth gallery: starts after quote (1.5 screens), spans 8 screens
+			// Depth gallery: starts after quote (1.5 screens), spans based on scroll speed
 			const depthStart = lc.height * 2;
-			const depthSpan = lc.height * 7;
+			const scrollSpeed = dg?.settings?.scrollSpeed || 1;
+			const depthSpan = lc.height * 7 / scrollSpeed;
 			const depthProgress = Math.max(0, (pastCards - depthStart) / depthSpan);
 
 			if (dg) {

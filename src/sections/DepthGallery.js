@@ -80,6 +80,7 @@ export default class DepthGallery {
 			parallaxX: 0.12,
 			parallaxY: 0.06,
 			cameraOffset: 8,
+			scrollSpeed: 1.0,
 		};
 
 		// Scroll state (driven externally)
@@ -218,10 +219,14 @@ export default class DepthGallery {
 			const planeZ = plane.position.z;
 			const dist = Math.abs(cameraZ - planeZ);
 
-			// Fade: visible when camera is within fadeRange * planeGap
+			// Fade: fully opaque when within 1 gap, fades over fadeRange
 			const normalizedDist = dist / (s.planeGap * s.fadeRange);
-			const targetOpacity = clamp(1 - normalizedDist, 0, 1);
+			let targetOpacity = clamp(1 - normalizedDist, 0, 1);
+			// Boost close planes to full opacity
+			if (dist < s.planeGap * 0.8) targetOpacity = 1;
 			plane.material.opacity += (targetOpacity - plane.material.opacity) * s.fadeSmoothing;
+			// Snap to 1 when very close to avoid perpetual translucency
+			if (plane.material.opacity > 0.97) plane.material.opacity = 1;
 
 			// Parallax — stronger for visible planes
 			const parallaxStrength = plane.material.opacity;
